@@ -2,7 +2,7 @@
 {
 	public class Candle
 	{
-
+		public int Id { get; set; }
 
 	}
 }
