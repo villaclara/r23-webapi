@@ -7,9 +7,9 @@ namespace Road23.WebAPI.Interfaces
 		IList<CandleItem> GetCandles();
 		CandleItem? GetCandleById(int candleId);
 		CandleItem? GetCandleByName(string candleName);
-		CandleItem CreateCandle (CandleItem candle);
-		CandleItem UpdateCandle (CandleItem candle);
-		CandleItem RemoveCandle (CandleItem candle);
+		Task<CandleItem> CreateCandle (CandleItem candle);
+		Task<CandleItem> UpdateCandle (CandleItem candle);
+		Task<CandleItem> RemoveCandle (CandleItem candle);
 		bool CandleExists (CandleItem candle);
 
 	}

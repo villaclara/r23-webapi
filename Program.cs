@@ -10,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddScoped<ICandleCategoryRepository, CandleCategoryRepository>();
+builder.Services.AddScoped<ICandleItemRepository, CandleItemRepository>();
+builder.Services.AddScoped<ICandleIngredientRepository, CandleIngredientRepository>();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

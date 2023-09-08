@@ -43,7 +43,7 @@ namespace Road23.WebAPI.Controllers
 			if (categoryToCreate is null)
 				return BadRequest(ModelState);
 
-			var existingCategory = _categoryRepository.GetCategories().Where(c => c.Name.Trim().ToLower() == categoryToCreate.Name.Trim().ToLower()).FirstOrDefault();
+			var existingCategory = _categoryRepository.GetCategories().Where(c => c.Name.Normalize() == categoryToCreate.Name.Normalize()).FirstOrDefault();
 
 			if (existingCategory is not null)
 			{
