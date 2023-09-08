@@ -5,6 +5,7 @@
 		public int Id { get; set; }
 		public int WaxNeededGram { get; set; }
 		public int WickForDiameterCD { get; set; }
-		public Candle Candle { get; set; }
+		public int CandleId { get; set; }
+		public CandleItem Candle { get; set; } = null!;
 	}
 }
