@@ -6,8 +6,8 @@ namespace Road23.WebAPI.Interfaces
 	{
 		IList<CandleCategory> GetCategories();
 		CandleCategory? GetCategoryById(int categoryId);
-		CandleCategory CreateCategory (CandleCategory candleCategory);
-		CandleCategory RemoveCategory(CandleCategory candleCategory);
+		Task<CandleCategory> CreateCategory (CandleCategory candleCategory);
+		Task<CandleCategory> RemoveCategory(CandleCategory candleCategory);
 
 	}
 }

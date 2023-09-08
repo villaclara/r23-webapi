@@ -24,6 +24,19 @@ namespace Road23.WebAPI.Controllers
 			return Ok(categories);
 		}
 
+		[HttpGet("{categoryId}")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(400)]
+		public IActionResult GetCategoryById(int categoryId)
+		{
+			var category = _categoryRepository.GetCategoryById(categoryId);
+
+			if (category is null)
+				return NotFound();
+
+			return Ok(category);
+		}
+
 		[HttpPost]
 		public IActionResult CreateCategory([FromBody] CategoryViewModel categoryToCreate)
 		{
@@ -45,9 +58,25 @@ namespace Road23.WebAPI.Controllers
 
 			_categoryRepository.CreateCategory(cat);
 
-			return Ok("Created");
+			return Ok("Category created");
 
 		}
+
+
+		[HttpDelete("{categoryId}")]
+		[ProducesResponseType(400)]
+		[ProducesResponseType(200)]
+		public IActionResult DeleteCategory (int categoryId)
+		{
+			var category = _categoryRepository.GetCategoryById(categoryId);
+			if (category is null) 
+				return NotFound();
+
+			_categoryRepository.RemoveCategory(category);
+			return Ok("Category deleted");
+		}
+
+
 	}
 
 

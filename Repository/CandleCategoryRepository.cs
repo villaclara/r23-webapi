@@ -12,11 +12,10 @@ namespace Road23.WebAPI.Repository
 			_context = context;
 		}
 
-
-		public CandleCategory CreateCategory(CandleCategory candleCategory)
+		public async Task<CandleCategory> CreateCategory(CandleCategory candleCategory)
 		{
 			_context.CandleCategories.Add(candleCategory);
-			_context.SaveChanges();
+			await _context.SaveChangesAsync();
 			return candleCategory;
 		}
 
@@ -27,12 +26,14 @@ namespace Road23.WebAPI.Repository
 
 		public CandleCategory? GetCategoryById(int categoryId)
 		{
-			throw new NotImplementedException();
+			return _context.CandleCategories.Where(c =>  c.Id == categoryId).FirstOrDefault();
 		}
 
-		public CandleCategory RemoveCategory(CandleCategory candleCategory)
+		public async Task<CandleCategory> RemoveCategory(CandleCategory candleCategory)
 		{
-			throw new NotImplementedException();
+			_context.Remove(candleCategory);
+			await _context.SaveChangesAsync();
+			return candleCategory;
 		}
 	}
 }
