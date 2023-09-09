@@ -3,6 +3,8 @@ using Road23.WebAPI.Database;
 using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Models;
 using Road23.WebAPI.Repository;
+using Road23.WebAPI.ViewModels;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Road23.WebAPI.Controllers
 {
@@ -38,14 +40,12 @@ namespace Road23.WebAPI.Controllers
 		}
 
 		[HttpPost]
-		public IActionResult CreateCategory([FromBody] CategoryViewModel categoryToCreate)
+		public async Task<IActionResult> CreateCategory([FromBody] CandleCategoryVM categoryToCreate)
 		{
 			if (categoryToCreate is null)
 				return BadRequest(ModelState);
 
-			var existingCategory = _categoryRepository.GetCategories().Where(c => c.Name.Normalize() == categoryToCreate.Name.Normalize()).FirstOrDefault();
-
-			if (existingCategory is not null)
+			if (_categoryRepository.CategoryExistsById(categoryToCreate.Name))
 			{
 				ModelState.AddModelError("", "Category already exists");
 				return StatusCode(422, ModelState);
@@ -54,35 +54,37 @@ namespace Road23.WebAPI.Controllers
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			var cat = new CandleCategory { Name =  categoryToCreate.Name };
+			var ctgr = new CandleCategory { 
+				Name = categoryToCreate.Name 
+			};
 
-			_categoryRepository.CreateCategory(cat);
+			var result = await _categoryRepository.CreateCategoryAsync(ctgr);
+			
+			if (result is null)
+			{
+				ModelState.AddModelError("", "Something went wrong when creating category");
+				return StatusCode(500, ModelState);
+			}
 
-			return Ok("Category created");
-
+			return Ok(result);
 		}
 
 
 		[HttpDelete("{categoryId}")]
 		[ProducesResponseType(400)]
 		[ProducesResponseType(200)]
-		public IActionResult DeleteCategory (int categoryId)
+		public async Task<IActionResult> DeleteCategory(int categoryId)
 		{
-			var category = _categoryRepository.GetCategoryById(categoryId);
-			if (category is null) 
+			var ctgr = _categoryRepository.GetCategoryById(categoryId);
+			if (ctgr is null)
+			{
 				return NotFound();
+			}
 
-			_categoryRepository.RemoveCategory(category);
-			return Ok("Category deleted");
+			return await _categoryRepository.RemoveCategoryAsync(ctgr) ? Ok("Category Deleted") : BadRequest(ModelState);
+			
 		}
 
-
 	}
 
-
-
-	public class CategoryViewModel
-	{
-		public string Name { get; set; }
-	}
 }

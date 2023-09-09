@@ -2,6 +2,8 @@
 using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Models;
 using Road23.WebAPI.Repository;
+using Road23.WebAPI.ViewModels;
+using Road23.WebAPI.Utility;
 
 namespace Road23.WebAPI.Controllers
 {
@@ -10,9 +12,15 @@ namespace Road23.WebAPI.Controllers
 	public class CandleController : ControllerBase
 	{
 		private readonly ICandleItemRepository _candleRepository;
-		public CandleController(ICandleItemRepository candleRepository)
+		private readonly ICandleCategoryRepository _categoryRepository;
+		private readonly ICandleIngredientRepository _ingredientRepository;
+		public CandleController(ICandleItemRepository candleRepository, 
+								ICandleCategoryRepository categoryRepository, 
+								ICandleIngredientRepository ingredientRepository)
 		{
 			_candleRepository = candleRepository;
+			_categoryRepository = categoryRepository;
+			_ingredientRepository = ingredientRepository;
 		}
 
 		[HttpGet]
@@ -23,7 +31,14 @@ namespace Road23.WebAPI.Controllers
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			return Ok(candles);
+			ICollection<CandleItemBasicVM> cndls = new List<CandleItemBasicVM>();
+			foreach(var candle in candles)
+			{
+				var ctgr = _categoryRepository.GetCategoryById(candle.CategoryId);
+				cndls.Add(candle.MakeBasicCandleToDisplay(ctgr));
+			}
+
+			return Ok(cndls);
 		}
 
 		[HttpGet("{candleId:int}")]
@@ -32,44 +47,78 @@ namespace Road23.WebAPI.Controllers
 		public IActionResult GetCandleById(int candleId)
 		{
 			var candle = _candleRepository.GetCandleById(candleId);
+			var ingr = _ingredientRepository.GetIngredientsByCandleId(candleId);
 
-			if (candle is null)
+			if (candle is null || ingr is null)
 				return NotFound();
 
-			return Ok(candle);
+			var ctgr = _categoryRepository.GetCategoryById(candle.CategoryId)?.Name;
+			if (ctgr is null)
+				return NotFound();
+
+			var candleModel = new CandleItemToDisplayVM
+			{
+				Name = candle.Name,
+				Description = candle.Description,
+				Category = ctgr,
+				PhotoLink = candle.PhotoLink,
+				RealCost = candle.RealCost,
+				SellPrice = candle.SellPrice,
+				BurningTimeMins = candle.BurningTimeMins,
+				WaxNeededGram = ingr.WaxNeededGram,
+				WickDiameterCM = ingr.WickForDiameterCD
+			};
+
+			return Ok(candleModel);
 		}
 
 		[HttpGet("{candleName}")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(400)]
+		[ProducesResponseType(404)]
 		public IActionResult GetCandleByName(string candleName)
 		{
 			var candle = _candleRepository.GetCandleByName(candleName);
-
 			if (candle is null)
 				return NotFound();
 
-			return Ok(candle);
+			var ingredient = _ingredientRepository.GetIngredientsByCandleId(candle.Id);
+			var category = _categoryRepository.GetCategoryById(candle.CategoryId);
+
+
+			var candleModel = candle.MakeCandleToDisplay(category, ingredient);
+
+			return Ok(candleModel);
 		}
 
 		[HttpPost]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(400)]
-		public IActionResult AddCandle([FromBody] CandleVieModel candleToAdd)
+		public async Task<IActionResult> AddCandle([FromQuery] int categoryId, [FromBody] CandleItemVM candleToAdd)
 		{
+			// candle to Add is not set
 			if (candleToAdd is null)
 				return BadRequest(ModelState);
 
-			var existingCandle = _candleRepository.GetCandles().Where(c => c.Name.Normalize() == candleToAdd.Name.Normalize()).FirstOrDefault();
-
-			if (existingCandle is not null)
+			// candle already exists
+			if (_candleRepository.CandleExistsByName(candleToAdd.Name))
 			{
 				ModelState.AddModelError("", "Candle already exists");
 				return StatusCode(422, ModelState);
 			}
 
+			// incorrect model state
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
+			
+			// category does not exists by given ID in query
+			var ctgr = _categoryRepository.GetCategoryById(categoryId);
+			if (ctgr is null)
+			{
+				ModelState.AddModelError("", "Categore does not exist");
+				return StatusCode(400, ModelState);
+			}
+
 
 			var cat = new CandleItem
 			{
@@ -79,13 +128,17 @@ namespace Road23.WebAPI.Controllers
 				RealCost = candleToAdd.RealCost,
 				SellPrice = candleToAdd.SellPrice,
 				BurningTimeMins = candleToAdd.BurningTimeMins,
-				Category = candleToAdd.Category,
-				Ingredient = candleToAdd.Ingredient,
+				Category = ctgr,
+				Ingredient = new CandleIngredient
+				{
+					WaxNeededGram = candleToAdd.WaxNeededGram,
+					WickForDiameterCD = candleToAdd.WickDiameterCM
+				}
 			};
 
-			_candleRepository.CreateCandle(cat);
+			await _candleRepository.CreateCandleAsync(cat);
 
-			return Ok("Category created");
+			return Ok("Candle created");
 		}
 
 
@@ -105,15 +158,4 @@ namespace Road23.WebAPI.Controllers
 
 	}
 
-	public class CandleVieModel
-	{
-		public string Name { get; set; }
-		public string? Description { get; set; }
-		public string? PhotoLink { get; set; }
-		public decimal RealCost { get; set; }
-		public decimal SellPrice { get; set; }
-		public int? BurningTimeMins { get; set; }
-		public CandleCategory Category { get; set; } = null!;
-		public CandleIngredient Ingredient { get; set; } = null!;
-	}
 }

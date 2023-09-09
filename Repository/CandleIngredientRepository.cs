@@ -16,12 +16,12 @@ namespace Road23.WebAPI.Repository
 		public CandleIngredient? GetIngredientsByCandleId(int candleId) =>
 			_context.CandleIngredients.Where(i => i.CandleId == candleId).FirstOrDefault();
 
-		public async Task<bool> SetIngredientsById(int candleId, CandleIngredient ingredient)
+		public async Task<bool> SetIngredientsByCandleId(int candleId, CandleIngredient ingredient)
 		{
 			var cingredient = GetIngredientsByCandleId(candleId);
 			if (cingredient is not null)
 			{
-				await UpdateIngredientsById(candleId, ingredient);
+				await UpdateIngredientsByCandleId(candleId, ingredient);
 				return true;
 			}
 
@@ -30,7 +30,7 @@ namespace Road23.WebAPI.Repository
 			return true;
 		}
 
-		public async Task<bool> UpdateIngredientsById(int candleId, CandleIngredient ingredient)
+		public async Task<bool> UpdateIngredientsByCandleId(int candleId, CandleIngredient ingredient)
 		{
 			_context.CandleIngredients.Update(ingredient);
 			await _context.SaveChangesAsync();

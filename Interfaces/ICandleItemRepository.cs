@@ -7,10 +7,10 @@ namespace Road23.WebAPI.Interfaces
 		IList<CandleItem> GetCandles();
 		CandleItem? GetCandleById(int candleId);
 		CandleItem? GetCandleByName(string candleName);
-		Task<CandleItem> CreateCandle (CandleItem candle);
+		Task<CandleItem> CreateCandleAsync (CandleItem candle);
 		Task<CandleItem> UpdateCandle (CandleItem candle);
 		Task<CandleItem> RemoveCandle (CandleItem candle);
-		bool CandleExists (CandleItem candle);
+		bool CandleExistsByName (string candleName);
 
 	}
 }

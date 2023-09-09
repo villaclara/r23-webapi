@@ -2,7 +2,8 @@
 {
 	public static class StrExtensions
 	{
-		public static string Normalize(this string value) => 
+		// for comparing
+		public static string UnifyToCompare(this string value) => 
 			value.Trim().ToLower();
 	}
 }
