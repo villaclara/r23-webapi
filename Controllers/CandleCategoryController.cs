@@ -3,6 +3,7 @@ using Road23.WebAPI.Database;
 using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Models;
 using Road23.WebAPI.Repository;
+using Road23.WebAPI.Utility;
 using Road23.WebAPI.ViewModels;
 using System.Reflection.Metadata.Ecma335;
 
@@ -13,9 +14,11 @@ namespace Road23.WebAPI.Controllers
 	public class CandleCategoryController : ControllerBase
 	{
 		private readonly ICandleCategoryRepository _categoryRepository;
-		public CandleCategoryController(ICandleCategoryRepository categoryRepository)
+		private readonly ICandleItemRepository _candleRepository;
+		public CandleCategoryController(ICandleCategoryRepository categoryRepository, ICandleItemRepository candleItemRepository)
 		{
 			_categoryRepository = categoryRepository;
+			_candleRepository = candleItemRepository;
 		}
 
 		[HttpGet]
@@ -23,7 +26,14 @@ namespace Road23.WebAPI.Controllers
 		{
 			var categories = _categoryRepository.GetCategories();
 
-			return Ok(categories);
+			IList<CandleCategoryFullVM> ctgrs = new List<CandleCategoryFullVM>();
+			foreach(var category in categories)
+			{
+				var cndls = _candleRepository.GetCandlesFromCategory(category.Id);
+				ctgrs.Add(category.MakeCategoryFullVM(cndls));
+			}
+
+			return Ok(ctgrs);
 		}
 
 		[HttpGet("{categoryId}")]
@@ -32,20 +42,22 @@ namespace Road23.WebAPI.Controllers
 		public IActionResult GetCategoryById(int categoryId)
 		{
 			var category = _categoryRepository.GetCategoryById(categoryId);
-
 			if (category is null)
 				return NotFound();
 
-			return Ok(category);
+			var candles = _candleRepository.GetCandlesFromCategory(categoryId);
+			var ctgr = category.MakeCategoryFullVM(candles);
+
+			return Ok(ctgr);
 		}
 
 		[HttpPost]
-		public async Task<IActionResult> CreateCategory([FromBody] CandleCategoryVM categoryToCreate)
+		public async Task<IActionResult> CreateCategory([FromQuery] string categoryToCreate)
 		{
 			if (categoryToCreate is null)
 				return BadRequest(ModelState);
 
-			if (_categoryRepository.CategoryExistsById(categoryToCreate.Name))
+			if (_categoryRepository.CategoryExistsByName(categoryToCreate))
 			{
 				ModelState.AddModelError("", "Category already exists");
 				return StatusCode(422, ModelState);
@@ -55,7 +67,7 @@ namespace Road23.WebAPI.Controllers
 				return BadRequest(ModelState);
 
 			var ctgr = new CandleCategory { 
-				Name = categoryToCreate.Name 
+				Name = categoryToCreate
 			};
 
 			var result = await _categoryRepository.CreateCategoryAsync(ctgr);
@@ -71,9 +83,10 @@ namespace Road23.WebAPI.Controllers
 
 
 		[HttpDelete("{categoryId}")]
-		[ProducesResponseType(400)]
+		[ProducesResponseType(404)]
 		[ProducesResponseType(200)]
-		public async Task<IActionResult> DeleteCategory(int categoryId)
+		[ProducesResponseType(500)]
+		public async Task<IActionResult> DeleteCategoryAsync(int categoryId)
 		{
 			var ctgr = _categoryRepository.GetCategoryById(categoryId);
 			if (ctgr is null)
@@ -81,10 +94,33 @@ namespace Road23.WebAPI.Controllers
 				return NotFound();
 			}
 
+			if (_categoryRepository.CandlesExistInCategoryId(ctgr.Id))
+			{
+				return StatusCode(400, "The Candles exists in this category. Delete Candles first.");
+			}
 			return await _categoryRepository.RemoveCategoryAsync(ctgr) ? Ok("Category Deleted") : BadRequest(ModelState);
 			
 		}
 
+
+		[HttpPut("{categoryId}")]
+		[ProducesResponseType(404)]
+		[ProducesResponseType(200)]
+		public async Task<IActionResult> UpdateCategory(int categoryId, [FromBody] string newCategoryName)
+		{
+			if (!_categoryRepository.CategoryExistsById(categoryId))
+				return NotFound();
+			
+			var category = new CandleCategory
+			{
+				Id = categoryId,
+				Name = newCategoryName
+			};
+
+			await _categoryRepository.UpdateCategoryAsync(category);
+			return Ok("Category updated.");
+
+		}
 	}
 
 }

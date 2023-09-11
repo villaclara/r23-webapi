@@ -17,6 +17,7 @@ namespace Road23.WebAPI.Models
 		
 		public int CategoryId { get; set; }
 		public CandleCategory Category { get; set; } = null!;
+
 		public CandleIngredient Ingredient { get; set; } = null!;
 
 	}

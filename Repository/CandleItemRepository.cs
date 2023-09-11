@@ -1,4 +1,5 @@
-﻿using Road23.WebAPI.Database;
+﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Road23.WebAPI.Database;
 using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Models;
 using Road23.WebAPI.Utility;
@@ -13,6 +14,8 @@ namespace Road23.WebAPI.Repository
 			_context = context;
 		}
 
+		public bool CandleExistsById(int candleId) =>
+			_context.Candles.Any(c => c.Id == candleId);
 
 		public bool CandleExistsByName(string candleName) =>
 			_context.Candles.Any(c => c.Name == candleName);
@@ -25,17 +28,9 @@ namespace Road23.WebAPI.Repository
 			return candle;
 		}
 
-		public CandleItem? GetCandleById(int candleId)
-		{
-			var cndl = _context.Candles.Where(c => c.Id == candleId).FirstOrDefault();
-
-			
-			var ing = _context.CandleIngredients.Where(i => i.CandleId == candleId).FirstOrDefault();
-
-			if (cndl is not null && ing is not null)
-				cndl.Ingredient = ing;
-			return cndl;
-		}
+		public CandleItem? GetCandleById(int candleId) =>
+			_context.Candles.Where(c => c.Id == candleId).FirstOrDefault();
+		
 
 		public CandleItem? GetCandleByName(string candleName) =>
 			_context.Candles.Where(c => c.Name.Trim().ToLower() == candleName.Trim().ToLower()).FirstOrDefault();
@@ -43,18 +38,24 @@ namespace Road23.WebAPI.Repository
 		public IList<CandleItem> GetCandles() =>
 			_context.Candles.OrderBy(c => c.Name).ToList();
 
-		public async Task<CandleItem> RemoveCandle(CandleItem candle)
+		public IEnumerable<CandleItem>? GetCandlesFromCategory(int categoryId) =>
+			_context.Candles.Where(c => c.CategoryId == categoryId).OrderBy(c => c.Name).ToList();
+
+		public async Task<CandleItem> RemoveCandleAsync(CandleItem candle)
 		{
 			_context.Candles.Remove(candle);
-			_context.CandleIngredients.Remove(candle.Ingredient);
+			//_context.CandleIngredients.Remove(candle.Ingredient);
 			await _context.SaveChangesAsync();
 			return candle;
 		}
 
-		public async Task<CandleItem> UpdateCandle(CandleItem candle)
+
+		// NOT WORKING
+		public async Task<CandleItem> UpdateCandleAsync(CandleItem candle)
 		{
-			_context.Update(candle);
+            _context.Candles.Update(candle);
 			await _context.SaveChangesAsync();
+			await Console.Out.WriteLineAsync($"Entity state - {_context.Entry(candle).State}");
 			return candle;
 		}
 	}

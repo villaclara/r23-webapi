@@ -36,7 +36,7 @@ namespace Road23.WebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CandleCategories");
+                    b.ToTable("CandleCategories", (string)null);
                 });
 
             modelBuilder.Entity("Road23.WebAPI.Models.CandleIngredient", b =>
@@ -61,7 +61,7 @@ namespace Road23.WebAPI.Migrations
                     b.HasIndex("CandleId")
                         .IsUnique();
 
-                    b.ToTable("CandleIngredients");
+                    b.ToTable("CandleIngredients", (string)null);
                 });
 
             modelBuilder.Entity("Road23.WebAPI.Models.CandleItem", b =>
@@ -103,7 +103,7 @@ namespace Road23.WebAPI.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Candles");
+                    b.ToTable("Candles", (string)null);
                 });
 
             modelBuilder.Entity("Road23.WebAPI.Models.Customer", b =>
@@ -120,7 +120,7 @@ namespace Road23.WebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("Road23.WebAPI.Models.CustomerDetails", b =>
@@ -143,7 +143,7 @@ namespace Road23.WebAPI.Migrations
                     b.HasIndex("CustomerId")
                         .IsUnique();
 
-                    b.ToTable("CustomerDetails");
+                    b.ToTable("CustomerDetails", (string)null);
                 });
 
             modelBuilder.Entity("Road23.WebAPI.Models.Order", b =>
@@ -171,7 +171,7 @@ namespace Road23.WebAPI.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("Road23.WebAPI.Models.OrderDetails", b =>
@@ -197,7 +197,7 @@ namespace Road23.WebAPI.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderDetails");
+                    b.ToTable("OrderDetails", (string)null);
                 });
 
             modelBuilder.Entity("Road23.WebAPI.Models.CandleIngredient", b =>

@@ -21,7 +21,7 @@ namespace Road23.WebAPI.Repository
 			var cingredient = GetIngredientsByCandleId(candleId);
 			if (cingredient is not null)
 			{
-				await UpdateIngredientsByCandleId(candleId, ingredient);
+				await UpdateIngredientsByCandleIdAsync(candleId, ingredient);
 				return true;
 			}
 
@@ -30,9 +30,15 @@ namespace Road23.WebAPI.Repository
 			return true;
 		}
 
-		public async Task<bool> UpdateIngredientsByCandleId(int candleId, CandleIngredient ingredient)
+		public async Task<bool> UpdateIngredientsByCandleIdAsync(int candleId, CandleIngredient ingredient)
 		{
 			_context.CandleIngredients.Update(ingredient);
+			await _context.SaveChangesAsync();
+			return true;
+		}
+		public async Task<bool> DeleteIngredientsAsync(CandleIngredient ingredient)
+		{
+			_context.CandleIngredients.Remove(ingredient);
 			await _context.SaveChangesAsync();
 			return true;
 		}

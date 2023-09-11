@@ -5,23 +5,7 @@ namespace Road23.WebAPI.Utility
 {
 	public static class CandleItemExtensions
 	{
-		public static CandleItemToDisplayVM MakeCandleToDisplay (this CandleItem cItem, CandleCategory? category = default, CandleIngredient? ingredient = default)
-		{
-			return new CandleItemToDisplayVM
-			{
-				Name = cItem.Name,
-				Description = cItem.Description,
-				Category = category?.Name ?? "unknown",
-				RealCost = cItem.RealCost,
-				SellPrice = cItem.SellPrice,
-				BurningTimeMins = cItem.BurningTimeMins,
-				WaxNeededGram = ingredient?.WaxNeededGram ?? 0,
-				WickDiameterCM = ingredient?.WickForDiameterCD ?? 0
-			};
-		}
-
-
-		public static CandleItemBasicVM MakeBasicCandleToDisplay(this CandleItem cItem, CandleCategory? category = default) =>
+		public static CandleItemBasicVM ConvertFromDefaultModel_ToBasicVM(this CandleItem cItem, CandleCategory? category = default) =>
 			new() 
 			{
 				Name = cItem.Name,
@@ -32,6 +16,42 @@ namespace Road23.WebAPI.Utility
 				BurningTime = cItem.BurningTimeMins
 			};
 
+		public static CandleItemFullVM ConvertFromDefaultModel_ToFullVM(this CandleItem cItem, CandleCategory? category = default, CandleIngredient? ingredient = default) =>
+			new()
+			{
+				Id = cItem.Id,
+				Name = cItem.Name,
+				Description = cItem.Description,
+				Category = category?.Name ?? "unknown",
+				RealCost = cItem.RealCost,
+				SellPrice = cItem.SellPrice,
+				HeightCM = cItem.HeightCM,
+				BurningTimeMins = cItem.BurningTimeMins,
+				WaxNeededGram = ingredient?.WaxNeededGram ?? 0,
+				WickDiameterCM = ingredient?.WickForDiameterCD ?? 0
+			};
+
+		public static CandleItem ConvertFromFullVM_ToDefaultModel(this CandleItemFullVM cFullItem, CandleCategory ctgr, int? ingredientId = default) =>
+			new()
+			{
+				// Id = cFullItem.Id,	-  not needed for CreateCandle
+				Name = cFullItem.Name,
+				Description = cFullItem.Description,
+				RealCost = cFullItem.RealCost,
+				SellPrice = cFullItem.SellPrice,
+				HeightCM = cFullItem.HeightCM,
+				BurningTimeMins = cFullItem.BurningTimeMins,
+				PhotoLink = cFullItem.PhotoLink,
+				CategoryId = ctgr.Id,
+				Category = ctgr,
+				Ingredient = new CandleIngredient
+				{
+					//Id = ingredientId ?? cFullItem.Id,
+					CandleId = cFullItem.Id,
+					WaxNeededGram = cFullItem.WaxNeededGram,
+					WickForDiameterCD = cFullItem.WickDiameterCM
+				}
+			};
 
 	}
 }

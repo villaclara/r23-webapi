@@ -1,5 +1,9 @@
 ﻿using Road23.WebAPI.Models;
 
+
+// NOT USED FOR NOW
+
+// maybe will be used later in adding candle
 namespace Road23.WebAPI.ViewModels
 {
 	public class CandleItemVM

@@ -6,6 +6,7 @@ namespace Road23.WebAPI.Interfaces
 	{
 		CandleIngredient? GetIngredientsByCandleId (int candleId);
 		Task<bool> SetIngredientsByCandleId(int candleId, CandleIngredient ingredient);
-		Task<bool> UpdateIngredientsByCandleId(int candleId, CandleIngredient ingredient);
+		Task<bool> UpdateIngredientsByCandleIdAsync(int candleId, CandleIngredient ingredient);
+		Task<bool> DeleteIngredientsAsync(CandleIngredient ingredient);
 	}
 }
