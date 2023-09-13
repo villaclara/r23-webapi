@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Models;
-using Road23.WebAPI.Repository;
 using Road23.WebAPI.ViewModels;
 using Road23.WebAPI.Utility;
 
@@ -25,12 +24,12 @@ namespace Road23.WebAPI.Controllers
 
 
 		/// <summary>
-		/// Gets all candles list in view, depending on parameter <paramref name="path"/>.
+		/// Gets all candles list in view, depending on parameter <paramref name="view"/>.
 		/// </summary>
-		/// <param name="path">"full" to get full info, "basic" is defaul</param>
+		/// <param name="view">"full" to get full info, "basic" is defaul</param>
 		/// <returns></returns>
 		[HttpGet]
-		public IActionResult GetCandles(string path = "basic")
+		public IActionResult GetCandles(string view = "basic")
 		{
 			var candles = _candleRepository.GetCandles();
 
@@ -38,7 +37,7 @@ namespace Road23.WebAPI.Controllers
 				return BadRequest(ModelState);
 
 			// make full info to display
-			if (path == "full")
+			if (view == "full")
 			{
 				IList<CandleItemFullVM> fullcandles = new List<CandleItemFullVM>();
 				foreach (var candle in candles)

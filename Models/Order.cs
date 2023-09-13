@@ -10,6 +10,8 @@ namespace Road23.WebAPI.Models
 		[Precision(8, 2)]
 		public decimal TotalSum { get; set; }
 		public string? Promocode { get; set; }
+		public int CustomerId { get; set; }
+		public Customer Customer { get; set; } = null!;
 		public ICollection<OrderDetails> OrderDetails { get; set; } = null!;
 
 	}

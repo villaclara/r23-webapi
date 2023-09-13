@@ -5,7 +5,7 @@ namespace Road23.WebAPI.Utility
 {
 	public static class CandleCategoryExtensions
 	{
-		public static CandleCategoryFullVM MakeCategoryFullVM(this CandleCategory candleCategory, IEnumerable<CandleItem>? candleItems)
+		public static CandleCategoryFullVM ConvertFromDefaulModel_ToFullVM(this CandleCategory candleCategory, IEnumerable<CandleItem>? candleItems)
 		{
 			var categoryVM = new CandleCategoryFullVM
 			{
