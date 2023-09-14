@@ -6,7 +6,7 @@ namespace Road23.WebAPI.Interfaces
 	{
 		ICollection<OrderDetails> GetOrderDetailsByOrderId(int orderId);
 		Task<OrderDetails> AddOrderDetailsToOrderAsync(int orderId, OrderDetails orderDetails);
-		OrderDetails UpdateOrderDetailsInOrderAsync(int orderId, OrderDetails orderDetails);
-		ICollection<OrderDetails>? RemoveOrderDetailsFromOrderAsync(int orderId, OrderDetails orderDetails);
+		Task<OrderDetails> UpdateOrderDetailsInOrderAsync(int orderId, OrderDetails orderDetails);
+		Task<OrderDetails> RemoveOrderDetailsFromOrderAsync(int orderId, OrderDetails orderDetails);
 	}
 }

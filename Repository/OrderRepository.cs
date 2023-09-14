@@ -6,29 +6,31 @@ namespace Road23.WebAPI.Repository
 {
 	public class OrderRepository : IOrderRepository
 	{
-		private ApplicationContext _context;
+		private readonly ApplicationContext _context;
 		public OrderRepository(ApplicationContext context)
 		{
 			_context = context;
 		}
-		public async Task<Order>? CreateOrderAsync(Order order)
+		public async Task<bool> CreateOrderAsync(Order order)
 		{
+			// Order and OrderDetails are automatically added together, no need to add explicitly OrderDetails
 			_context.Orders.Add(order);
-			foreach (var o in order.OrderDetails)
-			{
-				_context.OrderDetails.Add(o);
-			}
+			//_context.OrderDetails.AddRange(order.OrderDetails);
+			await _context.SaveChangesAsync();
+			return true;
+		}
+
+		public async Task<Order> DeleteOrderAsync(Order order)
+		{
+			_context.Orders.Remove(order);
 			await _context.SaveChangesAsync();
 			return order;
 		}
-
-		public Task<Order>? DeleteOrderAsync(Order order)
+		public async Task<Order> UpdateOrderAsync(Order order)
 		{
-			throw new NotImplementedException();
-		}
-		public Task<Order>? UpdateOrderAsync(Order order)
-		{
-			throw new NotImplementedException();
+			_context.Orders.Update(order);
+			await _context.SaveChangesAsync();
+			return order;
 		}
 
 		public Order? GetOrderById(int orderId) =>

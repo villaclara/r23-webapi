@@ -17,20 +17,23 @@ namespace Road23.WebAPI.Repository
 			_context.OrderDetails.Add(orderDetails);
 			await _context.SaveChangesAsync();
 			return orderDetails;
-
 		}
 
 		public ICollection<OrderDetails> GetOrderDetailsByOrderId(int orderId) =>
 			_context.OrderDetails.Where(o =>  o.OrderId == orderId).ToList();
 
-		public ICollection<OrderDetails>? RemoveOrderDetailsFromOrderAsync(int orderId, OrderDetails orderDetails)
+		public async Task<OrderDetails> RemoveOrderDetailsFromOrderAsync(int orderId, OrderDetails orderDetails)
 		{
-			throw new NotImplementedException();
+			_context.OrderDetails.Remove(orderDetails);
+			await _context.SaveChangesAsync();
+			return orderDetails;
 		}
 
-		public OrderDetails UpdateOrderDetailsInOrderAsync(int orderId, OrderDetails orderDetails)
+		public async Task<OrderDetails> UpdateOrderDetailsInOrderAsync(int orderId, OrderDetails orderDetails)
 		{
-			throw new NotImplementedException();
+			_context.OrderDetails.Update(orderDetails);
+			await _context.SaveChangesAsync();
+			return orderDetails;
 		}
 	}
 }

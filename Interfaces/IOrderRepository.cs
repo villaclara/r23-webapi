@@ -10,9 +10,9 @@ namespace Road23.WebAPI.Interfaces
 		ICollection<Order>? GetOrdersByDate(DateOnly date);
 		ICollection<Order>? GetOrdersByMinimalSum(int minimalSum);
 		ICollection<Order>? GetOrdersByMaximalSum(int maxSum);
-		Task<Order>? CreateOrderAsync(Order order);
-		Task<Order>? UpdateOrderAsync(Order order);
-		Task<Order>? DeleteOrderAsync(Order order);
+		Task<bool> CreateOrderAsync(Order order);
+		Task<Order> UpdateOrderAsync(Order order);
+		Task<Order> DeleteOrderAsync(Order order);
 		bool OrderExistsById(int orderId);
 	}
 }
