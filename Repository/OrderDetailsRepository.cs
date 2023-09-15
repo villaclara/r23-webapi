@@ -22,6 +22,19 @@ namespace Road23.WebAPI.Repository
 		public ICollection<OrderDetails> GetOrderDetailsByOrderId(int orderId) =>
 			_context.OrderDetails.Where(o =>  o.OrderId == orderId).ToList();
 
+		public async Task<bool> RemoveAllOrderDetailsByOrderId(int orderId)
+		{
+			var details = _context.OrderDetails.Where(d => d.OrderId == orderId);
+			if (details.Any())
+			{
+				_context.RemoveRange(details);
+				await _context.SaveChangesAsync();
+				return true;
+			}
+
+			return false;
+		}
+
 		public async Task<OrderDetails> RemoveOrderDetailsFromOrderAsync(int orderId, OrderDetails orderDetails)
 		{
 			_context.OrderDetails.Remove(orderDetails);

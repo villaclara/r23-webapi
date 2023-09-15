@@ -51,22 +51,23 @@ namespace Road23.WebAPI.Controllers
 		}
 
 		[HttpDelete("oid={orderId:int}")]
-		[ProducesResponseType(400)]
+		[ProducesResponseType(404)]
 		[ProducesResponseType(200)]
 		public async Task<IActionResult> DeleteOrderAsync(int orderId)
 		{
 			var order = _orderRepository.GetOrderById(orderId);
 			if (order is null)
-				return NotFound();
+				return NotFound($"Order {orderId} - Not found.");
 
-			await _orderRepository.DeleteOrderAsync(order);
+			var deleted = await _orderRepository.DeleteOrderAsync(order);
 
 			var details = _detailsRepository.GetOrderDetailsByOrderId(orderId);
 			foreach (var d in details)
 			{
 				await _detailsRepository.RemoveOrderDetailsFromOrderAsync(orderId, d);
 			}
-			return Ok("Order deleted.");
+
+			return Ok($"Order deleted - {deleted.Id}");
 		}
 
 
@@ -79,40 +80,20 @@ namespace Road23.WebAPI.Controllers
 		public async Task<IActionResult> EditOrderAsync(int orderId, [FromBody] OrderFullVM orderToUpdate)
 		{
 			if (orderToUpdate is null || orderToUpdate.Id != orderId)
-				return BadRequest(ModelState);
+				return StatusCode(400, ModelState);
 
 			if (!_orderRepository.OrderExistsById(orderId))
-				return NotFound();
+				return StatusCode(404, $"Order {orderId} - Not found.");
 
 			if (!ModelState.IsValid)
-				return BadRequest();
-
-			//var ctgr = _categoryRepository.GetCategoryByName(candleToUpdate.Category);
-			//if (ctgr is null)
-			//	return NotFound();
+				return StatusCode(400, ModelState);
 
 
+			// deleting all OrderDetails related to order by id
+			// because otherwise It adds new details instead of changing current one
+			await _detailsRepository.RemoveAllOrderDetailsByOrderId(orderId);
 
-			//var ingrd = _ingredientRepository.GetIngredientsByCandleId(orderId);
-			//if (ingrd is null)
-			//	return NotFound();
-			//ingrd.WickForDiameterCD = candleToUpdate.WickDiameterCM;
-			//ingrd.WaxNeededGram = candleToUpdate.WaxNeededGram;
-
-			//await _ingredientRepository.UpdateIngredientsByCandleIdAsync(orderId, ingrd);
-
-			//var cndl = new CandleItem
-			//{
-			//	Name = candleToUpdate.Name,
-			//	Id = candleToUpdate.Id,
-			//	Description = candleToUpdate.Description,
-			//	BurningTimeMins = candleToUpdate.BurningTimeMins,
-			//	Category = ctgr,
-			//	HeightCM = candleToUpdate.HeightCM,
-			//	RealCost = candleToUpdate.RealCost,
-			//	SellPrice = candleToUpdate.SellPrice,
-			//};
-
+			// new order from OrderVM
 			var ordr = new Order
 			{
 				Id = orderId,
@@ -122,34 +103,21 @@ namespace Road23.WebAPI.Controllers
 				CustomerId = orderToUpdate.CustomerId,
 				Comments = orderToUpdate.Comments,
 				Receiver = orderToUpdate.Receiver,
-
+				OrderDetails = new List<OrderDetails>()
 			};
-
-			//List<OrderDetails> orderDetails = new();
 			foreach (var item in orderToUpdate.OrderDetails)
 			{
-				//orderDetails.Add(new OrderDetails
-				//{
-				//	CandleId = item.CandleId,
-				//	CandleQuantity = item.CandleQuantity,
-				//});
-
-				var details = new OrderDetails
+				ordr.OrderDetails.Add(new OrderDetails
 				{
 					OrderId = orderId,
 					CandleId = item.CandleId,
 					CandleQuantity = item.CandleQuantity,
-				};
-
-				await _detailsRepository.UpdateOrderDetailsInOrderAsync(orderId, details);
-
+				});
 			}
-			//ordr.OrderDetails = orderDetails;
 
-
+			// Updating Order also adds all OrderDetails to DB
 			await _orderRepository.UpdateOrderAsync(ordr);
 			return Ok("Order updated.");
-
 		}
 
 		[HttpGet]
@@ -159,8 +127,8 @@ namespace Road23.WebAPI.Controllers
 		{
 			// getting orders
 			var orders = _orderRepository.GetOrders();
-			if (orders is null)
-				return NotFound();
+			if (!orders.Any())
+				return StatusCode(404, "Orders Not Found");
 
 			// getting OrderDetails for each order and 
 			// mapping from Order model to OrderFullVM viewmodel
@@ -172,7 +140,7 @@ namespace Road23.WebAPI.Controllers
 			}
 
 			if (!ModelState.IsValid)
-				return BadRequest(ModelState);
+				return StatusCode(400, ModelState);
 			
 			return Ok(orderVMs);
 		}
@@ -180,23 +148,15 @@ namespace Road23.WebAPI.Controllers
 		[HttpGet("oid={orderId:int}")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(404)]
-		public IActionResult GetOrderById(int orderId, string view = "basic")
+		public IActionResult GetOrderById(int orderId)
 		{
 			var order = _orderRepository.GetOrderById(orderId);
 			if (order is null)
-				return NotFound();
-
+				return NotFound($"Order {orderId} - Not found.");
 
 			order.OrderDetails = _detailsRepository.GetOrderDetailsByOrderId(orderId);
 			var orderVM = order.ConvertFromDefaultOrder_ToFullVM();
 			
-			
-			//if (view == "full")
-			//{
-			//	var candleToDisplay1 = candle.ConvertFromDefaultModel_ToFullVM(ctgr, ingr);
-			//	return Ok(candleToDisplay1);
-			//}
-
 			return Ok(orderVM);
 
 		}
@@ -204,11 +164,11 @@ namespace Road23.WebAPI.Controllers
 		[HttpGet("cid={customerId:int}")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(404)]
-		public IActionResult GetOrdersByCustomerId(int customerId, string view = "basic")
+		public IActionResult GetOrdersByCustomerId(int customerId)
 		{
 			var orders = _orderRepository.GetOrdersByCustomerId(customerId);
-			if (orders is null)
-				return NotFound();
+			if (!orders.Any())
+				return StatusCode(404, $"Orders by Customer {customerId} - Not found.");
 
 
 			// getting OrderDetails for each order and 
@@ -219,13 +179,6 @@ namespace Road23.WebAPI.Controllers
 				o.OrderDetails = _detailsRepository.GetOrderDetailsByOrderId(o.Id);
 				orderVMs.Add(o.ConvertFromDefaultOrder_ToFullVM());
 			}
-
-			//if (view == "full")
-			//{
-			//	var candleToDisplay1 = candle.ConvertFromDefaultModel_ToFullVM(ctgr, ingr);
-			//	return Ok(candleToDisplay1);
-			//}
-
 
 			return Ok(orderVMs);
 
@@ -234,11 +187,11 @@ namespace Road23.WebAPI.Controllers
 		[HttpGet("date={date}")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(404)]
-		public IActionResult GetOrdersByDate(DateOnly date, string view = "basic")
+		public IActionResult GetOrdersByDate(DateOnly date)
 		{
 			var orders = _orderRepository.GetOrdersByDate(date);
-			if (orders is null)
-				return NotFound();
+			if (!orders.Any())
+				return StatusCode(404, ModelState);
 
 			// getting OrderDetails for each order and 
 			// mapping from Order model to OrderFullVM viewmodel
@@ -248,13 +201,6 @@ namespace Road23.WebAPI.Controllers
 				o.OrderDetails = _detailsRepository.GetOrderDetailsByOrderId(o.Id);
 				orderVMs.Add(o.ConvertFromDefaultOrder_ToFullVM());
 			}
-
-
-			//if (view == "full")
-			//{
-			//	var candleToDisplay1 = candle.ConvertFromDefaultModel_ToFullVM(ctgr, ingr);
-			//	return Ok(candleToDisplay1);
-			//}
 
 			return Ok(orderVMs);
 
@@ -263,11 +209,11 @@ namespace Road23.WebAPI.Controllers
 		[HttpGet("minsum={minSum:int}")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(404)]
-		public IActionResult GetOrdersByMinSum(int minSum, string view = "basic")
+		public IActionResult GetOrdersByMinSum(int minSum)
 		{
 			var orders = _orderRepository.GetOrdersByMinimalSum(minSum);
-			if (orders is null)
-				return NotFound();
+			if (!orders.Any())
+				return StatusCode(404);
 
 			// getting OrderDetails for each order and 
 			// mapping from Order model to OrderFullVM viewmodel
@@ -278,24 +224,16 @@ namespace Road23.WebAPI.Controllers
 				orderVMs.Add(o.ConvertFromDefaultOrder_ToFullVM());
 			}
 
-			//if (view == "full")
-			//{
-			//	var candleToDisplay1 = candle.ConvertFromDefaultModel_ToFullVM(ctgr, ingr);
-			//	return Ok(candleToDisplay1);
-			//}
-
-
 			return Ok(orderVMs);
-
 		}
 
 		[HttpGet("maxsum={maxSum:int}")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(404)]
-		public IActionResult GetOrdersByMaxSum(int maxSum, string view = "basic")
+		public IActionResult GetOrdersByMaxSum(int maxSum)
 		{
 			var orders = _orderRepository.GetOrdersByMaximalSum(maxSum);
-			if (orders is null)
+			if (!orders.Any())
 				return NotFound();
 
 			// getting OrderDetails for each order and 
@@ -307,15 +245,7 @@ namespace Road23.WebAPI.Controllers
 				orderVMs.Add(o.ConvertFromDefaultOrder_ToFullVM());
 			}
 
-			//if (view == "full")
-			//{
-			//	var candleToDisplay1 = candle.ConvertFromDefaultModel_ToFullVM(ctgr, ingr);
-			//	return Ok(candleToDisplay1);
-			//}
-
-
 			return Ok(orderVMs);
-
 		}
 
 	}

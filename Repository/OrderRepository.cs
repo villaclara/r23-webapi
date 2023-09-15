@@ -28,6 +28,12 @@ namespace Road23.WebAPI.Repository
 		}
 		public async Task<Order> UpdateOrderAsync(Order order)
 		{
+			//_context.Entry(order).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+			//foreach (var details in order.OrderDetails)
+			//{
+			//	_context.Entry(details).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+			//}
+
 			_context.Orders.Update(order);
 			await _context.SaveChangesAsync();
 			return order;
@@ -39,16 +45,16 @@ namespace Road23.WebAPI.Repository
 		public ICollection<Order> GetOrders() =>
 			_context.Orders.ToList();
 
-		public ICollection<Order>? GetOrdersByCustomerId(int customerId) =>
+		public ICollection<Order> GetOrdersByCustomerId(int customerId) =>
 			_context.Orders.Where(o => o.CustomerId == customerId).ToList();
 
-		public ICollection<Order>? GetOrdersByDate(DateOnly date) =>
+		public ICollection<Order> GetOrdersByDate(DateOnly date) =>
 			_context.Orders.Where(o => o.OrderDate.Date == date.ToDateTime(new TimeOnly()).Date).ToList();
 
-		public ICollection<Order>? GetOrdersByMaximalSum(int maxSum) =>
+		public ICollection<Order> GetOrdersByMaximalSum(int maxSum) =>
 			_context.Orders.Where(o => o.TotalSum <= maxSum).ToList();
 
-		public ICollection<Order>? GetOrdersByMinimalSum(int minimalSum) =>
+		public ICollection<Order> GetOrdersByMinimalSum(int minimalSum) =>
 			_context.Orders.Where(o => o.TotalSum >= minimalSum).ToList();
 
 		public bool OrderExistsById(int orderId) =>

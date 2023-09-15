@@ -8,5 +8,6 @@ namespace Road23.WebAPI.Interfaces
 		Task<OrderDetails> AddOrderDetailsToOrderAsync(int orderId, OrderDetails orderDetails);
 		Task<OrderDetails> UpdateOrderDetailsInOrderAsync(int orderId, OrderDetails orderDetails);
 		Task<OrderDetails> RemoveOrderDetailsFromOrderAsync(int orderId, OrderDetails orderDetails);
+		Task<bool> RemoveAllOrderDetailsByOrderId(int orderId);
 	}
 }
