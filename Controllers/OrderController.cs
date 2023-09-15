@@ -3,6 +3,7 @@ using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Models;
 using Road23.WebAPI.Utility;
 using Road23.WebAPI.ViewModels;
+using System.Collections.Generic;
 
 namespace Road23.WebAPI.Controllers
 {
@@ -32,17 +33,16 @@ namespace Road23.WebAPI.Controllers
 				CustomerId = orderToAdd.CustomerId,
 				Comments = orderToAdd.Comments,
 				Receiver = orderToAdd.Receiver,
+				OrderDetails = new List<OrderDetails>()
 			};
-			List<OrderDetails> orderDetails = new();
 			foreach (var item in orderToAdd.OrderDetails)
 			{
-				orderDetails.Add(new OrderDetails
+				ordr.OrderDetails.Add(new OrderDetails
 				{
 					CandleId = item.CandleId,
 					CandleQuantity = item.CandleQuantity,
 				});
 			}
-			ordr.OrderDetails = orderDetails;
 			
 			// adding order - it will add both Order and OrderDetails to db
 			await _orderRepository.CreateOrderAsync(ordr);
@@ -61,6 +61,8 @@ namespace Road23.WebAPI.Controllers
 
 			var deleted = await _orderRepository.DeleteOrderAsync(order);
 
+			// It seems that previous method also deletes the all OrderDetails linked with order
+			// But just to be sure I will leave it here
 			var details = _detailsRepository.GetOrderDetailsByOrderId(orderId);
 			foreach (var d in details)
 			{
@@ -71,8 +73,6 @@ namespace Road23.WebAPI.Controllers
 		}
 
 
-
-		// TO DO 
 		[HttpPut("oid={orderId:int}")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(404)]
@@ -120,6 +120,7 @@ namespace Road23.WebAPI.Controllers
 			return Ok("Order updated.");
 		}
 
+
 		[HttpGet]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(404)]
@@ -129,21 +130,15 @@ namespace Road23.WebAPI.Controllers
 			var orders = _orderRepository.GetOrders();
 			if (!orders.Any())
 				return StatusCode(404, "Orders Not Found");
-
-			// getting OrderDetails for each order and 
-			// mapping from Order model to OrderFullVM viewmodel
-			IList<OrderFullVM> orderVMs = new List<OrderFullVM>();
-			foreach(var o in orders)
-			{
-				o.OrderDetails = _detailsRepository.GetOrderDetailsByOrderId(o.Id);
-				orderVMs.Add(o.ConvertFromDefaultOrder_ToFullVM());
-			}
+			
+			var orderVMs = MakeOrderVMsCollection(orders);
 
 			if (!ModelState.IsValid)
 				return StatusCode(400, ModelState);
 			
 			return Ok(orderVMs);
 		}
+
 
 		[HttpGet("oid={orderId:int}")]
 		[ProducesResponseType(200)]
@@ -161,6 +156,7 @@ namespace Road23.WebAPI.Controllers
 
 		}
 
+
 		[HttpGet("cid={customerId:int}")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(404)]
@@ -170,19 +166,12 @@ namespace Road23.WebAPI.Controllers
 			if (!orders.Any())
 				return StatusCode(404, $"Orders by Customer {customerId} - Not found.");
 
-
-			// getting OrderDetails for each order and 
-			// mapping from Order model to OrderFullVM viewmodel
-			IList<OrderFullVM> orderVMs = new List<OrderFullVM>();
-			foreach (var o in orders)
-			{
-				o.OrderDetails = _detailsRepository.GetOrderDetailsByOrderId(o.Id);
-				orderVMs.Add(o.ConvertFromDefaultOrder_ToFullVM());
-			}
+			var orderVMs = MakeOrderVMsCollection(orders);
 
 			return Ok(orderVMs);
 
 		}
+
 
 		[HttpGet("date={date}")]
 		[ProducesResponseType(200)]
@@ -193,18 +182,12 @@ namespace Road23.WebAPI.Controllers
 			if (!orders.Any())
 				return StatusCode(404, ModelState);
 
-			// getting OrderDetails for each order and 
-			// mapping from Order model to OrderFullVM viewmodel
-			IList<OrderFullVM> orderVMs = new List<OrderFullVM>();
-			foreach (var o in orders)
-			{
-				o.OrderDetails = _detailsRepository.GetOrderDetailsByOrderId(o.Id);
-				orderVMs.Add(o.ConvertFromDefaultOrder_ToFullVM());
-			}
+			var orderVMs = MakeOrderVMsCollection(orders);
 
 			return Ok(orderVMs);
 
 		}
+
 
 		[HttpGet("minsum={minSum:int}")]
 		[ProducesResponseType(200)]
@@ -215,17 +198,10 @@ namespace Road23.WebAPI.Controllers
 			if (!orders.Any())
 				return StatusCode(404);
 
-			// getting OrderDetails for each order and 
-			// mapping from Order model to OrderFullVM viewmodel
-			IList<OrderFullVM> orderVMs = new List<OrderFullVM>();
-			foreach (var o in orders)
-			{
-				o.OrderDetails = _detailsRepository.GetOrderDetailsByOrderId(o.Id);
-				orderVMs.Add(o.ConvertFromDefaultOrder_ToFullVM());
-			}
-
+			var orderVMs = MakeOrderVMsCollection(orders);
 			return Ok(orderVMs);
 		}
+
 
 		[HttpGet("maxsum={maxSum:int}")]
 		[ProducesResponseType(200)]
@@ -236,17 +212,25 @@ namespace Road23.WebAPI.Controllers
 			if (!orders.Any())
 				return NotFound();
 
-			// getting OrderDetails for each order and 
-			// mapping from Order model to OrderFullVM viewmodel
+			var orderVMs = MakeOrderVMsCollection(orders);
+			return Ok(orderVMs);
+		}
+
+
+		/// <summary>
+		/// Getting OrderDetails for each Order in <paramref name="orders"/> and adds into Collection of OrderFullVM.
+		/// </summary>
+		/// <param name="orders">Orders returned by some criteria</param>
+		/// <returns>ICollection of <see cref="OrderFullVM"/> objects</returns>
+		private ICollection<OrderFullVM> MakeOrderVMsCollection(ICollection<Order> orders)
+		{
 			IList<OrderFullVM> orderVMs = new List<OrderFullVM>();
 			foreach (var o in orders)
 			{
 				o.OrderDetails = _detailsRepository.GetOrderDetailsByOrderId(o.Id);
 				orderVMs.Add(o.ConvertFromDefaultOrder_ToFullVM());
 			}
-
-			return Ok(orderVMs);
+			return orderVMs;
 		}
-
 	}
 }
