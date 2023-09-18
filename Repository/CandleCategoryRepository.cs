@@ -1,4 +1,5 @@
-﻿using Road23.WebAPI.Database;
+﻿using Microsoft.EntityFrameworkCore;
+using Road23.WebAPI.Database;
 using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Models;
 using Road23.WebAPI.Utility;
@@ -14,13 +15,13 @@ namespace Road23.WebAPI.Repository
 		}
 
 		public IList<CandleCategory> GetCategories() =>
-			_context.CandleCategories.ToList();
+			_context.CandleCategories.OrderBy(c => c.Id).Include(c => c.Candles).ToList();
 
 		public CandleCategory? GetCategoryById(int categoryId) => 
-			_context.CandleCategories.Where(c => c.Id == categoryId).FirstOrDefault();
+			_context.CandleCategories.Where(c => c.Id == categoryId).Include(c => c.Candles).FirstOrDefault();
 
 		public CandleCategory? GetCategoryByName(string name) =>
-			_context.CandleCategories.Where(c => c.Name == name).FirstOrDefault();
+			_context.CandleCategories.Where(c => c.Name == name).Include(c => c.Candles).FirstOrDefault();
 
 		public async Task<CandleCategory> CreateCategoryAsync(CandleCategory candleCategory)
 		{

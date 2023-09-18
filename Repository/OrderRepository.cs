@@ -1,6 +1,7 @@
 ﻿using Road23.WebAPI.Database;
 using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Road23.WebAPI.Repository
 {
@@ -40,22 +41,23 @@ namespace Road23.WebAPI.Repository
 		}
 
 		public Order? GetOrderById(int orderId) =>
-			_context.Orders.Where(delegate(Order o) { return o.Id ==  orderId; }).FirstOrDefault();
+			_context.Orders.Where(o => o.Id == orderId).Include(o => o.Customer).Include(o => o.OrderDetails).FirstOrDefault();
 
 		public ICollection<Order> GetOrders() =>
-			_context.Orders.ToList();
+			_context.Orders.OrderBy(o => o.OrderDate).Include(o => o.Customer).Include(o => o.OrderDetails).ToList();
 
 		public ICollection<Order> GetOrdersByCustomerId(int customerId) =>
-			_context.Orders.Where(o => o.CustomerId == customerId).ToList();
+			_context.Orders.Where(o => o.CustomerId == customerId).Include(o => o.Customer).Include(o => o.OrderDetails).ToList();
 
 		public ICollection<Order> GetOrdersByDate(DateOnly date) =>
-			_context.Orders.Where(o => o.OrderDate.Date == date.ToDateTime(new TimeOnly()).Date).ToList();
+			_context.Orders.Where(o => o.OrderDate.Date == date.ToDateTime(new TimeOnly()).Date)
+				.Include(o => o.Customer).Include(o => o.OrderDetails).ToList();
 
 		public ICollection<Order> GetOrdersByMaximalSum(int maxSum) =>
-			_context.Orders.Where(o => o.TotalSum <= maxSum).ToList();
+			_context.Orders.Where(o => o.TotalSum <= maxSum).Include(o => o.Customer).Include(o => o.OrderDetails).ToList();
 
 		public ICollection<Order> GetOrdersByMinimalSum(int minimalSum) =>
-			_context.Orders.Where(o => o.TotalSum >= minimalSum).ToList();
+			_context.Orders.Where(o => o.TotalSum >= minimalSum).Include(o => o.Customer).Include(o => o.OrderDetails).ToList();
 
 		public bool OrderExistsById(int orderId) =>
 			_context.Orders.Any(o => o.Id == orderId);

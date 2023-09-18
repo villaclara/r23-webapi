@@ -16,6 +16,32 @@ namespace Road23.WebAPI.Utility
 				BurningTime = cItem.BurningTimeMins
 			};
 
+		public static CandleItemBasicVM ConvertFromDefaultModel_ToBasicVM(this CandleItem cItem) =>
+			new()
+			{
+				Name = cItem.Name,
+				Desciption = cItem.Description,
+				Category = cItem.Category.Name,
+				Price = cItem.SellPrice,
+				Height = cItem.HeightCM,
+				BurningTime = cItem.BurningTimeMins
+			};
+
+		public static CandleItemFullVM ConvertFromDefaultModel_ToFullVM(this CandleItem cItem) =>
+			new()
+			{
+				Id = cItem.Id,
+				Name = cItem.Name,
+				Description = cItem.Description,
+				Category = cItem.Category.Name,
+				RealCost = cItem.RealCost,
+				SellPrice = cItem.SellPrice,
+				HeightCM = cItem.HeightCM,
+				BurningTimeMins = cItem.BurningTimeMins,
+				WaxNeededGram = cItem.Ingredient.WaxNeededGram,
+				WickDiameterCM = cItem.Ingredient.WickForDiameterCD
+			};
+
 		public static CandleItemFullVM ConvertFromDefaultModel_ToFullVM(this CandleItem cItem, CandleCategory? category = default, CandleIngredient? ingredient = default) =>
 			new()
 			{

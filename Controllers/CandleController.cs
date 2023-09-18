@@ -42,21 +42,16 @@ namespace Road23.WebAPI.Controllers
 				IList<CandleItemFullVM> fullcandles = new List<CandleItemFullVM>();
 				foreach (var candle in candles)
 				{
-					var ingredient = _ingredientRepository.GetIngredientsByCandleId(candle.Id);
-					var category = _categoryRepository.GetCategoryById(candle.CategoryId);
-
-					fullcandles.Add(candle.ConvertFromDefaultModel_ToFullVM(category, ingredient));
+					fullcandles.Add(candle.ConvertFromDefaultModel_ToFullVM());
 				}
 				return Ok(fullcandles);
-
 			}
 
 			// make basic info to display
 			ICollection<CandleItemBasicVM> basiccandles = new List<CandleItemBasicVM>();
 			foreach (var candle in candles)
 			{
-				var category = _categoryRepository.GetCategoryById(candle.CategoryId);
-				basiccandles.Add(candle.ConvertFromDefaultModel_ToBasicVM(category));
+				basiccandles.Add(candle.ConvertFromDefaultModel_ToBasicVM());
 			}
 
 			return Ok(basiccandles);
@@ -78,16 +73,13 @@ namespace Road23.WebAPI.Controllers
 			if (candle is null)
 				return NotFound();
 
-			var ingr = _ingredientRepository.GetIngredientsByCandleId(candleId);
-			var ctgr = _categoryRepository.GetCategoryById(candle.CategoryId);
-
 			if (view == "full")
 			{
-				var candleToDisplay1 = candle.ConvertFromDefaultModel_ToFullVM(ctgr, ingr);
+				var candleToDisplay1 = candle.ConvertFromDefaultModel_ToFullVM();
 				return Ok(candleToDisplay1);
 			}
 
-			var candleToDisplay = candle.ConvertFromDefaultModel_ToBasicVM(ctgr);
+			var candleToDisplay = candle.ConvertFromDefaultModel_ToBasicVM();
 			return Ok(candleToDisplay);
 
 		}
@@ -102,17 +94,13 @@ namespace Road23.WebAPI.Controllers
 			if (candle is null)
 				return NotFound();
 
-			var ingr = _ingredientRepository.GetIngredientsByCandleId(candle.Id);
-			var ctgr = _categoryRepository.GetCategoryById(candle.CategoryId);
-
-
 			if (view == "full")
 			{
-				var candleToDisplay1 = candle.ConvertFromDefaultModel_ToFullVM(ctgr, ingr);
+				var candleToDisplay1 = candle.ConvertFromDefaultModel_ToFullVM();
 				return Ok(candleToDisplay1);
 			}
 
-			var candleToDisplay = candle.ConvertFromDefaultModel_ToBasicVM(ctgr);
+			var candleToDisplay = candle.ConvertFromDefaultModel_ToBasicVM();
 			return Ok(candleToDisplay);
 		}
 

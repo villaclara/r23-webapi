@@ -29,8 +29,7 @@ namespace Road23.WebAPI.Controllers
 			IList<CandleCategoryFullVM> ctgrs = new List<CandleCategoryFullVM>();
 			foreach(var category in categories)
 			{
-				var cndls = _candleRepository.GetCandlesFromCategory(category.Id);
-				ctgrs.Add(category.ConvertFromDefaulModel_ToFullVM(cndls));
+				ctgrs.Add(category.ConvertFromDefaulModel_ToFullVM());
 			}
 
 			return Ok(ctgrs);
@@ -45,8 +44,7 @@ namespace Road23.WebAPI.Controllers
 			if (category is null)
 				return NotFound();
 
-			var candles = _candleRepository.GetCandlesFromCategory(categoryId);
-			var ctgr = category.ConvertFromDefaulModel_ToFullVM(candles);
+			var ctgr = category.ConvertFromDefaulModel_ToFullVM();
 
 			return Ok(ctgr);
 		}

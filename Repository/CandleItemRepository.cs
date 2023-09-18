@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Road23.WebAPI.Database;
 using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Models;
@@ -29,17 +30,18 @@ namespace Road23.WebAPI.Repository
 		}
 
 		public CandleItem? GetCandleById(int candleId) =>
-			_context.Candles.Where(c => c.Id == candleId).FirstOrDefault();
-		
+			_context.Candles.Where(c => c.Id == candleId).Include(i => i.Ingredient).Include(c => c.Category).FirstOrDefault();
 
 		public CandleItem? GetCandleByName(string candleName) =>
-			_context.Candles.Where(c => c.Name.Trim().ToLower() == candleName.Trim().ToLower()).FirstOrDefault();
+			_context.Candles.Where(c => c.Name.Trim().ToLower() == candleName.Trim().ToLower())
+				.Include(i => i.Ingredient).Include(c => c.Category).FirstOrDefault();
 
 		public IList<CandleItem> GetCandles() =>
-			_context.Candles.OrderBy(c => c.Name).ToList();
+			_context.Candles.OrderBy(c => c.Name).Include(i => i.Ingredient).Include(c => c.Category).ToList();
 
 		public IEnumerable<CandleItem>? GetCandlesFromCategory(int categoryId) =>
-			_context.Candles.Where(c => c.CategoryId == categoryId).OrderBy(c => c.Name).ToList();
+			_context.Candles.Where(c => c.CategoryId == categoryId).OrderBy(c => c.Name)
+				.Include(i => i.Ingredient).Include(c => c.Category).ToList();
 
 		public async Task<CandleItem> RemoveCandleAsync(CandleItem candle)
 		{

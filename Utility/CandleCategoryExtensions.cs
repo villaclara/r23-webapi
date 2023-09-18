@@ -23,5 +23,24 @@ namespace Road23.WebAPI.Utility
 			}
 			return categoryVM;
 		}
+
+		public static CandleCategoryFullVM ConvertFromDefaulModel_ToFullVM(this CandleCategory candleCategory)
+		{
+			var categoryVM = new CandleCategoryFullVM
+			{
+				Id = candleCategory.Id,
+				Name = candleCategory.Name,
+				Candles = new List<string>()
+			};
+
+			if (candleCategory.Candles == null)
+				return categoryVM;
+
+			foreach (var c in candleCategory.Candles)
+			{
+				categoryVM.Candles.Add(c.Name);
+			}
+			return categoryVM;
+		}
 	}
 }

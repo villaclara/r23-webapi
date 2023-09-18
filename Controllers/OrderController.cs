@@ -149,7 +149,6 @@ namespace Road23.WebAPI.Controllers
 			if (order is null)
 				return NotFound($"Order {orderId} - Not found.");
 
-			order.OrderDetails = _detailsRepository.GetOrderDetailsByOrderId(orderId);
 			var orderVM = order.ConvertFromDefaultOrder_ToFullVM();
 			
 			return Ok(orderVM);
@@ -227,7 +226,6 @@ namespace Road23.WebAPI.Controllers
 			IList<OrderFullVM> orderVMs = new List<OrderFullVM>();
 			foreach (var o in orders)
 			{
-				o.OrderDetails = _detailsRepository.GetOrderDetailsByOrderId(o.Id);
 				orderVMs.Add(o.ConvertFromDefaultOrder_ToFullVM());
 			}
 			return orderVMs;
