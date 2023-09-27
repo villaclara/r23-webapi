@@ -26,26 +26,29 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
-	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+	options.UseSqlServer(builder.Configuration["FreeAspHostingConnection"]);
 });
 
-// TO DO
-//
-// CORS to connect blazor wasm to api 
-var allow = "allow";
-builder.Services.AddCors(opt =>
+
+// Add CORS Policies for different set ups to allow/deny different things from different applications
+builder.Services.AddCors(options =>
 {
-	opt.AddPolicy(name: allow,
+	options.AddPolicy(name: "AllowEveryone",
 		builder =>
 		{
-			builder.AllowAnyOrigin().AllowAnyOrigin();
+			builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
 		});
+	options.AddPolicy(name: "AllowLocalhost7263",
+		builder => builder
+		.WithOrigins("https://localhost:7263")
+		.AllowAnyMethod()
+		.AllowAnyHeader());
 });
 
 var app = builder.Build();
 
-// allow connect blazor wasm to api
-app.UseCors(allow);
+// using CORS Policy set above with Name
+app.UseCors("AllowEveryone");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
