@@ -7,7 +7,7 @@ using Road23.WebAPI.Utility;
 
 namespace Road23.WebAPI.Repository
 {
-	public class CandleItemRepository : ICandleItemRepository
+	public class CandleItemRepository : ICandleItemRepository, IContextSave
 	{
 		private readonly ApplicationContext _context;
 		public CandleItemRepository(ApplicationContext context)
@@ -25,7 +25,10 @@ namespace Road23.WebAPI.Repository
 		{
 			_context.Candles.Add(candle);
 			_context.CandleIngredients.Add(candle.Ingredient);
-			await _context.SaveChangesAsync();
+			var saved = await SaveAsync();
+			if(!saved)
+				return new CandleItem();
+
 			return candle;
 		}
 
@@ -47,18 +50,27 @@ namespace Road23.WebAPI.Repository
 		{
 			_context.Candles.Remove(candle);
 			//_context.CandleIngredients.Remove(candle.Ingredient);
-			await _context.SaveChangesAsync();
+			var saved = await SaveAsync();
+			if (!saved)
+				return new CandleItem();
+
 			return candle;
 		}
 
 
-		// NOT WORKING
 		public async Task<CandleItem> UpdateCandleAsync(CandleItem candle)
 		{
             _context.Candles.Update(candle);
-			await _context.SaveChangesAsync();
-			await Console.Out.WriteLineAsync($"Entity state - {_context.Entry(candle).State}");
+			var saved = await SaveAsync();
+			if (!saved) 
+				return new CandleItem();
+			
 			return candle;
 		}
+
+
+		public async Task<bool> SaveAsync() =>
+			await _context.SaveChangesAsync() > 0;
+
 	}
 }

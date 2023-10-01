@@ -4,7 +4,7 @@ using Road23.WebAPI.Models;
 
 namespace Road23.WebAPI.Repository
 {
-	public class OrderDetailsRepository : IOrderDetailsRepository
+	public class OrderDetailsRepository : IOrderDetailsRepository, IContextSave
 	{
 		private readonly ApplicationContext _context;
 		public OrderDetailsRepository(ApplicationContext context)
@@ -15,7 +15,10 @@ namespace Road23.WebAPI.Repository
 		public async Task<OrderDetails> AddOrderDetailsToOrderAsync(int orderId, OrderDetails orderDetails)
 		{
 			_context.OrderDetails.Add(orderDetails);
-			await _context.SaveChangesAsync();
+			var saved = await SaveAsync();
+			if (!saved)
+				return new OrderDetails();
+
 			return orderDetails;
 		}
 
@@ -28,8 +31,9 @@ namespace Road23.WebAPI.Repository
 			if (details.Any())
 			{
 				_context.RemoveRange(details);
-				await _context.SaveChangesAsync();
-				return true;
+				var saved = await SaveAsync();
+				if(saved)
+					return true;
 			}
 
 			return false;
@@ -38,15 +42,24 @@ namespace Road23.WebAPI.Repository
 		public async Task<OrderDetails> RemoveOrderDetailsFromOrderAsync(int orderId, OrderDetails orderDetails)
 		{
 			_context.OrderDetails.Remove(orderDetails);
-			await _context.SaveChangesAsync();
+			var saved = await SaveAsync();
+			if (!saved)
+				return new OrderDetails();
+
 			return orderDetails;
 		}
 
 		public async Task<OrderDetails> UpdateOrderDetailsInOrderAsync(int orderId, OrderDetails orderDetails)
 		{
 			_context.OrderDetails.Update(orderDetails);
-			await _context.SaveChangesAsync();
+			var saved = await SaveAsync();
+			if(!saved) 
+				return new OrderDetails();
+			
 			return orderDetails;
 		}
+
+		public async Task<bool> SaveAsync() =>
+			await _context.SaveChangesAsync() > 0;
 	}
 }

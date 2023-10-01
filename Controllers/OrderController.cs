@@ -45,7 +45,13 @@ namespace Road23.WebAPI.Controllers
 			}
 			
 			// adding order - it will add both Order and OrderDetails to db
-			await _orderRepository.CreateOrderAsync(ordr);
+			var result = await _orderRepository.CreateOrderAsync(ordr);
+			if(!result)
+			{
+				ModelState.AddModelError("", "Internal error when creating order.");
+				return StatusCode(500, ModelState);
+			}
+
 			return Ok(ordr);
 
 		}
@@ -60,6 +66,11 @@ namespace Road23.WebAPI.Controllers
 				return NotFound($"Order {orderId} - Not found.");
 
 			var deleted = await _orderRepository.DeleteOrderAsync(order);
+			if(deleted == default(Order))
+			{
+				ModelState.AddModelError("", "Internal error when deleting order.");
+				return StatusCode(500, ModelState);
+			}
 
 			// It seems that previous method also deletes the all OrderDetails linked with order
 			// But just to be sure I will leave it here
@@ -116,8 +127,14 @@ namespace Road23.WebAPI.Controllers
 			}
 
 			// Updating Order also adds all OrderDetails to DB
-			await _orderRepository.UpdateOrderAsync(ordr);
-			return Ok("Order updated.");
+			var updated = await _orderRepository.UpdateOrderAsync(ordr);
+			if (updated == default(Order))
+			{
+				ModelState.AddModelError("", "Internal error when updating order.");
+				return StatusCode(500, ModelState);
+			}
+
+			return Ok(updated);
 		}
 
 
@@ -146,7 +163,7 @@ namespace Road23.WebAPI.Controllers
 		public IActionResult GetOrderById(int orderId)
 		{
 			var order = _orderRepository.GetOrderById(orderId);
-			if (order is null)
+			if (order is null || order is default(Order))
 				return NotFound($"Order {orderId} - Not found.");
 
 			var orderVM = order.ConvertFromDefaultOrder_ToFullVM();

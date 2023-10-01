@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Road23.WebAPI.Repository
 {
-	public class OrderRepository : IOrderRepository
+	public class OrderRepository : IOrderRepository, IContextSave
 	{
 		private readonly ApplicationContext _context;
 		public OrderRepository(ApplicationContext context)
@@ -17,14 +17,16 @@ namespace Road23.WebAPI.Repository
 			// Order and OrderDetails are automatically added together, no need to add explicitly OrderDetails
 			_context.Orders.Add(order);
 			//_context.OrderDetails.AddRange(order.OrderDetails);
-			await _context.SaveChangesAsync();
-			return true;
+			return await SaveAsync();
 		}
 
 		public async Task<Order> DeleteOrderAsync(Order order)
 		{
 			_context.Orders.Remove(order);
-			await _context.SaveChangesAsync();
+			var saved = await SaveAsync();
+			if (!saved)
+				return new Order();
+
 			return order;
 		}
 		public async Task<Order> UpdateOrderAsync(Order order)
@@ -36,7 +38,10 @@ namespace Road23.WebAPI.Repository
 			//}
 
 			_context.Orders.Update(order);
-			await _context.SaveChangesAsync();
+			var saved = await SaveAsync();
+			if (!saved)
+				return new Order();
+
 			return order;
 		}
 
@@ -62,5 +67,9 @@ namespace Road23.WebAPI.Repository
 		public bool OrderExistsById(int orderId) =>
 			_context.Orders.Any(o => o.Id == orderId);
 
+
+
+		public async Task<bool> SaveAsync() =>
+			await _context.SaveChangesAsync() > 0;
 	}
 }

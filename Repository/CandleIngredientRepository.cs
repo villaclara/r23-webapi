@@ -4,7 +4,7 @@ using Road23.WebAPI.Models;
 
 namespace Road23.WebAPI.Repository
 {
-	public class CandleIngredientRepository : ICandleIngredientRepository
+	public class CandleIngredientRepository : ICandleIngredientRepository, IContextSave
 	{
 		private readonly ApplicationContext _context;
 		public CandleIngredientRepository(ApplicationContext context)
@@ -26,21 +26,23 @@ namespace Road23.WebAPI.Repository
 			}
 
 			_context.CandleIngredients.Add(ingredient);
-			await _context.SaveChangesAsync();
-			return true;
+			return await SaveAsync();
 		}
 
 		public async Task<bool> UpdateIngredientsByCandleIdAsync(int candleId, CandleIngredient ingredient)
 		{
 			_context.CandleIngredients.Update(ingredient);
-			await _context.SaveChangesAsync();
-			return true;
+
+			return await SaveAsync();
+
 		}
 		public async Task<bool> DeleteIngredientsAsync(CandleIngredient ingredient)
 		{
 			_context.CandleIngredients.Remove(ingredient);
-			await _context.SaveChangesAsync();
-			return true;
+			return await SaveAsync();
 		}
+
+		public async Task<bool> SaveAsync() =>
+			await _context.SaveChangesAsync() > 0;
 	}
 }

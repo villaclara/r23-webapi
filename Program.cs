@@ -26,7 +26,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
-	options.UseSqlServer(builder.Configuration["FreeAspHostingConnection"]);
+	//options.UseSqlServer(builder.Configuration["FreeAspHostingConnection"]);
+	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 
@@ -36,7 +37,7 @@ builder.Services.AddCors(options =>
 	options.AddPolicy(name: "AllowEveryone",
 		builder =>
 		{
-			builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+			builder.AllowAnyOrigin().AllowAnyHeader().WithMethods("GET", "POST", "PUT", "DELETE");
 		});
 	options.AddPolicy(name: "AllowLocalhost7263",
 		builder => builder
@@ -48,7 +49,6 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // using CORS Policy set above with Name
-app.UseCors("AllowEveryone");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -60,6 +60,10 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+
+app.UseCors("AllowEveryone");
+
 
 app.MapControllers();
 

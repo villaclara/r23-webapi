@@ -141,9 +141,16 @@ namespace Road23.WebAPI.Controllers
 			}
 
 			var newCandle = candleToAdd.ConvertFromFullVM_ToDefaultModel(ctgr);
-			await _candleRepository.CreateCandleAsync(newCandle);
+			var resultedCandle = await _candleRepository.CreateCandleAsync(newCandle);
 
-			return Ok("Candle created");
+			if (resultedCandle == default(CandleItem))
+			{
+				ModelState.AddModelError("", "Internal error when creating candle.");
+				return StatusCode(500, ModelState);
+			}
+
+
+			return Ok(resultedCandle);
 		}
 
 
@@ -157,13 +164,18 @@ namespace Road23.WebAPI.Controllers
 			if (candle is null)
 				return NotFound();
 
-			await _candleRepository.RemoveCandleAsync(candle);
-
+			var resultedCandle = await _candleRepository.RemoveCandleAsync(candle);
+			if (resultedCandle == default(CandleItem))
+			{
+				ModelState.AddModelError("", "Internal error when creating candle.");
+				return StatusCode(500, ModelState);
+			}
+			
 			var ingredient = _ingredientRepository.GetIngredientsByCandleId(candleId);
 			if (ingredient is not null)
 				await _ingredientRepository.DeleteIngredientsAsync(ingredient);
 
-			return Ok("Candle deleted.");
+			return Ok(resultedCandle);
 		}
 
 
@@ -186,29 +198,33 @@ namespace Road23.WebAPI.Controllers
 			if (ctgr is null)
 				return NotFound();
 
-
-
 			var ingrd = _ingredientRepository.GetIngredientsByCandleId(candleId);
 			if (ingrd is null)
 				return NotFound();
-			ingrd.WickForDiameterCD = candleToUpdate.WickDiameterCM;
-			ingrd.WaxNeededGram = candleToUpdate.WaxNeededGram;
+			await _ingredientRepository.DeleteIngredientsAsync(ingrd);
 
-			await _ingredientRepository.UpdateIngredientsByCandleIdAsync(candleId, ingrd);
-
-			var cndl = new CandleItem
+			var cnd = _candleRepository.GetCandleById(candleId)!;
+			cnd.Name = candleToUpdate.Name;
+			cnd.Description = candleToUpdate.Description;
+			cnd.Category.Name = candleToUpdate.Category;
+			cnd.RealCost = candleToUpdate.RealCost;
+			cnd.SellPrice = candleToUpdate.SellPrice;
+			cnd.HeightCM = candleToUpdate.HeightCM;
+			cnd.BurningTimeMins = candleToUpdate.BurningTimeMins;
+			cnd.Ingredient = new CandleIngredient
 			{
-				Name = candleToUpdate.Name,
-				Id = candleToUpdate.Id,
-				Description = candleToUpdate.Description,
-				BurningTimeMins = candleToUpdate.BurningTimeMins,
-				Category = ctgr,
-				HeightCM = candleToUpdate.HeightCM,
-				RealCost = candleToUpdate.RealCost,
-				SellPrice = candleToUpdate.SellPrice,
+				WickForDiameterCD = candleToUpdate.WickDiameterCM,
+				WaxNeededGram = candleToUpdate.WaxNeededGram,
+				CandleId = cnd.Id
 			};
-			await _candleRepository.UpdateCandleAsync(cndl);
-			return Ok("Candle updated.");
+
+			var resultedCandle = await _candleRepository.UpdateCandleAsync(cnd);
+			if (resultedCandle == default(CandleItem))
+			{
+				ModelState.AddModelError("", "Internal error when creating candle.");
+				return StatusCode(500, ModelState);
+			}
+			return Ok(resultedCandle);
 
 		}
 

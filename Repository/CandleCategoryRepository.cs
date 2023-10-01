@@ -6,7 +6,7 @@ using Road23.WebAPI.Utility;
 
 namespace Road23.WebAPI.Repository
 {
-	public class CandleCategoryRepository : ICandleCategoryRepository
+	public class CandleCategoryRepository : ICandleCategoryRepository, IContextSave
 	{
 		private readonly ApplicationContext _context;
 		public CandleCategoryRepository(ApplicationContext context)
@@ -26,14 +26,17 @@ namespace Road23.WebAPI.Repository
 		public async Task<CandleCategory> CreateCategoryAsync(CandleCategory candleCategory)
 		{
 			_context.CandleCategories.Add(candleCategory);
-			await _context.SaveChangesAsync();
+			var saved = await SaveAsync();
+			if (!saved)
+				return new CandleCategory();
+
 			return candleCategory;
 		}
 
 		public async Task<bool> RemoveCategoryAsync(CandleCategory candleCategory) 
 		{
 			_context.Remove(candleCategory);
-			return await _context.SaveChangesAsync() > 0;
+			return await SaveAsync();
 		}
 
 		public bool CategoryExistsByName(string categoryName) => 
@@ -42,7 +45,10 @@ namespace Road23.WebAPI.Repository
 		public async Task<CandleCategory> UpdateCategoryAsync(CandleCategory candleCategory)
 		{
 			_context.Update(candleCategory);
-			await _context.SaveChangesAsync();
+			var saved = await SaveAsync();
+			if (!saved) 
+				return new CandleCategory();
+			
 			return candleCategory;
 		}
 
@@ -51,6 +57,9 @@ namespace Road23.WebAPI.Repository
 
 		public bool CandlesExistInCategoryId(int categoryId) =>
 			_context.Candles.Any(c => c.CategoryId == categoryId);
-		
+
+
+		public async Task<bool> SaveAsync() =>
+			await _context.SaveChangesAsync() > 0;
 	}
 }

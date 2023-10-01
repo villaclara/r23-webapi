@@ -41,7 +41,7 @@ namespace Road23.WebAPI.Controllers
 		public IActionResult GetCategoryById(int categoryId)
 		{
 			var category = _categoryRepository.GetCategoryById(categoryId);
-			if (category is null)
+			if (category is default(CandleCategory))
 				return NotFound();
 
 			var ctgr = category.ConvertFromDefaulModel_ToFullVM();
