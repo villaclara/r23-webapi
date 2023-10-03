@@ -105,6 +105,36 @@ namespace Road23.WebAPI.Controllers
 		}
 
 
+		[HttpGet("catid={categoryId}")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
+		public IActionResult GetCandlesByCategoryId(int categoryId, string view = "basic")
+		{
+			var candles = _candleRepository.GetCandlesFromCategory(categoryId);
+			if (candles is default(IEnumerable<CandleItem>) || !candles.Any())
+				return NotFound($"No candles for category id {categoryId}");
+
+			if (view == "full")
+			{
+				IList<CandleItemFullVM> fullcandles = new List<CandleItemFullVM>();
+				foreach (var candle in candles)
+				{
+					fullcandles.Add(candle.ConvertFromDefaultModel_ToFullVM());
+				}
+				return Ok(fullcandles);
+			}
+
+			// make basic info to display
+			ICollection<CandleItemBasicVM> basiccandles = new List<CandleItemBasicVM>();
+			foreach (var candle in candles)
+			{
+				basiccandles.Add(candle.ConvertFromDefaultModel_ToBasicVM());
+			}
+
+			return Ok(basiccandles);
+		}
+		
+
 
 		// CandleItemFullVM has string Category field, int Id 
 		// these fields is not needed when adding candle
@@ -141,16 +171,16 @@ namespace Road23.WebAPI.Controllers
 			}
 
 			var newCandle = candleToAdd.ConvertFromFullVM_ToDefaultModel(ctgr);
-			var resultedCandle = await _candleRepository.CreateCandleAsync(newCandle);
+			var isSuccess = await _candleRepository.CreateCandleAsync(newCandle);
 
-			if (resultedCandle == default(CandleItem))
+			if (isSuccess == false)
 			{
 				ModelState.AddModelError("", "Internal error when creating candle.");
 				return StatusCode(500, ModelState);
 			}
 
 
-			return Ok(resultedCandle);
+			return Ok(candleToAdd);
 		}
 
 
@@ -164,8 +194,8 @@ namespace Road23.WebAPI.Controllers
 			if (candle is null)
 				return NotFound();
 
-			var resultedCandle = await _candleRepository.RemoveCandleAsync(candle);
-			if (resultedCandle == default(CandleItem))
+			var isSuccess = await _candleRepository.RemoveCandleAsync(candle);
+			if (!isSuccess)
 			{
 				ModelState.AddModelError("", "Internal error when creating candle.");
 				return StatusCode(500, ModelState);
@@ -175,7 +205,7 @@ namespace Road23.WebAPI.Controllers
 			if (ingredient is not null)
 				await _ingredientRepository.DeleteIngredientsAsync(ingredient);
 
-			return Ok(resultedCandle);
+			return Ok($"Candle - {candleId} deleted.");
 		}
 
 
@@ -218,13 +248,13 @@ namespace Road23.WebAPI.Controllers
 				CandleId = cnd.Id
 			};
 
-			var resultedCandle = await _candleRepository.UpdateCandleAsync(cnd);
-			if (resultedCandle == default(CandleItem))
+			var isSuccess = await _candleRepository.UpdateCandleAsync(cnd);
+			if (!isSuccess)
 			{
 				ModelState.AddModelError("", "Internal error when creating candle.");
 				return StatusCode(500, ModelState);
 			}
-			return Ok(resultedCandle);
+			return Ok(candleToUpdate);
 
 		}
 

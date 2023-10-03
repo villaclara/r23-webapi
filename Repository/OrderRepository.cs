@@ -20,16 +20,12 @@ namespace Road23.WebAPI.Repository
 			return await SaveAsync();
 		}
 
-		public async Task<Order> DeleteOrderAsync(Order order)
+		public async Task<bool> DeleteOrderAsync(Order order)
 		{
 			_context.Orders.Remove(order);
-			var saved = await SaveAsync();
-			if (!saved)
-				return new Order();
-
-			return order;
+			return await SaveAsync();
 		}
-		public async Task<Order> UpdateOrderAsync(Order order)
+		public async Task<bool> UpdateOrderAsync(Order order)
 		{
 			//_context.Entry(order).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
 			//foreach (var details in order.OrderDetails)
@@ -38,11 +34,7 @@ namespace Road23.WebAPI.Repository
 			//}
 
 			_context.Orders.Update(order);
-			var saved = await SaveAsync();
-			if (!saved)
-				return new Order();
-
-			return order;
+			return await SaveAsync();
 		}
 
 		public Order? GetOrderById(int orderId) =>

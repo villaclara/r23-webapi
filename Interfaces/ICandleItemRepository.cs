@@ -8,9 +8,9 @@ namespace Road23.WebAPI.Interfaces
 		IEnumerable<CandleItem>? GetCandlesFromCategory(int categoryId);
 		CandleItem? GetCandleById(int candleId);
 		CandleItem? GetCandleByName(string candleName);
-		Task<CandleItem> CreateCandleAsync (CandleItem candle);
-		Task<CandleItem> UpdateCandleAsync(CandleItem candle);
-		Task<CandleItem> RemoveCandleAsync(CandleItem candle);
+		Task<bool> CreateCandleAsync (CandleItem candle);
+		Task<bool> UpdateCandleAsync(CandleItem candle);
+		Task<bool> RemoveCandleAsync(CandleItem candle);
 		bool CandleExistsByName (string candleName);
 		bool CandleExistsById (int candleId);
 

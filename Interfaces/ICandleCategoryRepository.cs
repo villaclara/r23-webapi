@@ -7,9 +7,9 @@ namespace Road23.WebAPI.Interfaces
 		IList<CandleCategory> GetCategories();
 		CandleCategory? GetCategoryById(int categoryId);
 		CandleCategory? GetCategoryByName(string name);
-		Task<CandleCategory> CreateCategoryAsync(CandleCategory candleCategory);
+		Task<bool> CreateCategoryAsync(CandleCategory candleCategory);
 		Task<bool> RemoveCategoryAsync(CandleCategory candleCategory);
-		Task<CandleCategory> UpdateCategoryAsync(CandleCategory candleCategory);
+		Task<bool> UpdateCategoryAsync(CandleCategory candleCategory);
 		bool CategoryExistsByName (string categoryName);
 		bool CategoryExistsById (int categoryId);	
 		bool CandlesExistInCategoryId (int categoryId);

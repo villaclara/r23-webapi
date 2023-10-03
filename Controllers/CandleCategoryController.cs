@@ -37,12 +37,13 @@ namespace Road23.WebAPI.Controllers
 
 		[HttpGet("{categoryId}")]
 		[ProducesResponseType(200)]
-		[ProducesResponseType(400)]
+		[ProducesResponseType(404)]
 		public IActionResult GetCategoryById(int categoryId)
 		{
 			var category = _categoryRepository.GetCategoryById(categoryId);
 			if (category is default(CandleCategory))
-				return NotFound();
+				//return NotFound($"Category with id {categoryId} not found.");
+				return new NotFoundResult();
 
 			var ctgr = category.ConvertFromDefaulModel_ToFullVM();
 
@@ -70,13 +71,13 @@ namespace Road23.WebAPI.Controllers
 
 			var result = await _categoryRepository.CreateCategoryAsync(ctgr);
 			
-			if (result is null)
+			if (result is false)
 			{
 				ModelState.AddModelError("", "Something went wrong when creating category");
 				return StatusCode(500, ModelState);
 			}
 
-			return Ok(result);
+			return Ok(categoryToCreate);
 		}
 
 
@@ -96,7 +97,7 @@ namespace Road23.WebAPI.Controllers
 			{
 				return StatusCode(400, "The Candles exists in this category. Delete Candles first.");
 			}
-			return await _categoryRepository.RemoveCategoryAsync(ctgr) ? Ok("Category Deleted") : BadRequest(ModelState);
+			return await _categoryRepository.RemoveCategoryAsync(ctgr) ? Ok("Category Deleted") : StatusCode(500, ModelState);
 			
 		}
 
@@ -115,8 +116,7 @@ namespace Road23.WebAPI.Controllers
 				Name = newCategoryName
 			};
 
-			await _categoryRepository.UpdateCategoryAsync(category);
-			return Ok("Category updated.");
+			return await _categoryRepository.UpdateCategoryAsync(category) ? Ok("Category updated.") : StatusCode(500, ModelState);
 
 		}
 	}

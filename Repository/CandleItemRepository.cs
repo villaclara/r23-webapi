@@ -21,15 +21,11 @@ namespace Road23.WebAPI.Repository
 		public bool CandleExistsByName(string candleName) =>
 			_context.Candles.Any(c => c.Name == candleName);
 
-		public async Task<CandleItem> CreateCandleAsync(CandleItem candle)
+		public async Task<bool> CreateCandleAsync(CandleItem candle)
 		{
 			_context.Candles.Add(candle);
 			_context.CandleIngredients.Add(candle.Ingredient);
-			var saved = await SaveAsync();
-			if(!saved)
-				return new CandleItem();
-
-			return candle;
+			return await SaveAsync();
 		}
 
 		public CandleItem? GetCandleById(int candleId) =>
@@ -44,28 +40,20 @@ namespace Road23.WebAPI.Repository
 
 		public IEnumerable<CandleItem>? GetCandlesFromCategory(int categoryId) =>
 			_context.Candles.Where(c => c.CategoryId == categoryId).OrderBy(c => c.Name)
-				.Include(i => i.Ingredient).Include(c => c.Category).ToList();
+				.Include(i => i.Ingredient).Include(c => c.Category).ToList() ?? default(IEnumerable<CandleItem>);
 
-		public async Task<CandleItem> RemoveCandleAsync(CandleItem candle)
+		public async Task<bool> RemoveCandleAsync(CandleItem candle)
 		{
 			_context.Candles.Remove(candle);
 			//_context.CandleIngredients.Remove(candle.Ingredient);
-			var saved = await SaveAsync();
-			if (!saved)
-				return new CandleItem();
-
-			return candle;
+			return await SaveAsync();
 		}
 
 
-		public async Task<CandleItem> UpdateCandleAsync(CandleItem candle)
+		public async Task<bool> UpdateCandleAsync(CandleItem candle)
 		{
             _context.Candles.Update(candle);
-			var saved = await SaveAsync();
-			if (!saved) 
-				return new CandleItem();
-			
-			return candle;
+			return await SaveAsync();
 		}
 
 

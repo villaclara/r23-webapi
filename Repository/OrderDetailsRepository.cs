@@ -12,14 +12,10 @@ namespace Road23.WebAPI.Repository
 			_context = context;
 		}
 
-		public async Task<OrderDetails> AddOrderDetailsToOrderAsync(int orderId, OrderDetails orderDetails)
+		public async Task<bool> AddOrderDetailsToOrderAsync(int orderId, OrderDetails orderDetails)
 		{
 			_context.OrderDetails.Add(orderDetails);
-			var saved = await SaveAsync();
-			if (!saved)
-				return new OrderDetails();
-
-			return orderDetails;
+			return await SaveAsync();
 		}
 
 		public ICollection<OrderDetails> GetOrderDetailsByOrderId(int orderId) =>
@@ -39,24 +35,16 @@ namespace Road23.WebAPI.Repository
 			return false;
 		}
 
-		public async Task<OrderDetails> RemoveOrderDetailsFromOrderAsync(int orderId, OrderDetails orderDetails)
+		public async Task<bool> RemoveOrderDetailsFromOrderAsync(int orderId, OrderDetails orderDetails)
 		{
 			_context.OrderDetails.Remove(orderDetails);
-			var saved = await SaveAsync();
-			if (!saved)
-				return new OrderDetails();
-
-			return orderDetails;
+			return await SaveAsync();
 		}
 
-		public async Task<OrderDetails> UpdateOrderDetailsInOrderAsync(int orderId, OrderDetails orderDetails)
+		public async Task<bool> UpdateOrderDetailsInOrderAsync(int orderId, OrderDetails orderDetails)
 		{
 			_context.OrderDetails.Update(orderDetails);
-			var saved = await SaveAsync();
-			if(!saved) 
-				return new OrderDetails();
-			
-			return orderDetails;
+			return await SaveAsync();
 		}
 
 		public async Task<bool> SaveAsync() =>

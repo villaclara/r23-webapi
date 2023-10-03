@@ -11,8 +11,8 @@ namespace Road23.WebAPI.Interfaces
 		ICollection<Order> GetOrdersByMinimalSum(int minimalSum);
 		ICollection<Order> GetOrdersByMaximalSum(int maxSum);
 		Task<bool> CreateOrderAsync(Order order);
-		Task<Order> UpdateOrderAsync(Order order);
-		Task<Order> DeleteOrderAsync(Order order);
+		Task<bool> UpdateOrderAsync(Order order);
+		Task<bool> DeleteOrderAsync(Order order);
 		bool OrderExistsById(int orderId);
 	}
 }

@@ -45,8 +45,8 @@ namespace Road23.WebAPI.Controllers
 			}
 			
 			// adding order - it will add both Order and OrderDetails to db
-			var result = await _orderRepository.CreateOrderAsync(ordr);
-			if(!result)
+			var isSuccess = await _orderRepository.CreateOrderAsync(ordr);
+			if(!isSuccess)
 			{
 				ModelState.AddModelError("", "Internal error when creating order.");
 				return StatusCode(500, ModelState);
@@ -65,8 +65,8 @@ namespace Road23.WebAPI.Controllers
 			if (order is null)
 				return NotFound($"Order {orderId} - Not found.");
 
-			var deleted = await _orderRepository.DeleteOrderAsync(order);
-			if(deleted == default(Order))
+			var isSuccess = await _orderRepository.DeleteOrderAsync(order);
+			if(isSuccess)
 			{
 				ModelState.AddModelError("", "Internal error when deleting order.");
 				return StatusCode(500, ModelState);
@@ -80,7 +80,7 @@ namespace Road23.WebAPI.Controllers
 				await _detailsRepository.RemoveOrderDetailsFromOrderAsync(orderId, d);
 			}
 
-			return Ok($"Order deleted - {deleted.Id}");
+			return Ok($"Order deleted - {orderId}");
 		}
 
 
@@ -127,14 +127,14 @@ namespace Road23.WebAPI.Controllers
 			}
 
 			// Updating Order also adds all OrderDetails to DB
-			var updated = await _orderRepository.UpdateOrderAsync(ordr);
-			if (updated == default(Order))
+			var isSuccess = await _orderRepository.UpdateOrderAsync(ordr);
+			if (!isSuccess)
 			{
 				ModelState.AddModelError("", "Internal error when updating order.");
 				return StatusCode(500, ModelState);
 			}
 
-			return Ok(updated);
+			return Ok(orderToUpdate);
 		}
 
 
