@@ -10,6 +10,8 @@ namespace Road23.WebAPI.Interfaces
 		ICollection<Order> GetOrdersByDate(DateOnly date);
 		ICollection<Order> GetOrdersByMinimalSum(int minimalSum);
 		ICollection<Order> GetOrdersByMaximalSum(int maxSum);
+		ICollection<Order> GetOrdersByPhoneNumber(string phoneNumber);
+		ICollection<Order> GetOrdersByReceiverId(int receiverId);
 		Task<bool> CreateOrderAsync(Order order);
 		Task<bool> UpdateOrderAsync(Order order);
 		Task<bool> DeleteOrderAsync(Order order);

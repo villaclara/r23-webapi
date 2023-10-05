@@ -38,24 +38,31 @@ namespace Road23.WebAPI.Repository
 		}
 
 		public Order? GetOrderById(int orderId) =>
-			_context.Orders.Where(o => o.Id == orderId).Include(o => o.Customer).Include(o => o.OrderDetails).FirstOrDefault();
+			_context.Orders.Where(o => o.Id == orderId).Include(o => o.Receiver).Include(o => o.OrderDetails).FirstOrDefault();
 
 		public ICollection<Order> GetOrders() =>
-			_context.Orders.OrderBy(o => o.OrderDate).Include(o => o.Customer).Include(o => o.OrderDetails).ToList();
+			_context.Orders.OrderBy(o => o.OrderDate).Include(o => o.Receiver).Include(o => o.OrderDetails).ToList();
 
 		public ICollection<Order> GetOrdersByCustomerId(int customerId) =>
-			_context.Orders.Where(o => o.CustomerId == customerId).Include(o => o.Customer).Include(o => o.OrderDetails).ToList();
+			_context.Orders.Where(o => o.CustomerId == customerId).Include(o => o.Receiver).Include(o => o.OrderDetails).ToList();
 
 		public ICollection<Order> GetOrdersByDate(DateOnly date) =>
 			_context.Orders.Where(o => o.OrderDate.Date == date.ToDateTime(new TimeOnly()).Date)
-				.Include(o => o.Customer).Include(o => o.OrderDetails).ToList();
+				.Include(o => o.Receiver).Include(o => o.OrderDetails).ToList();
 
 		public ICollection<Order> GetOrdersByMaximalSum(int maxSum) =>
-			_context.Orders.Where(o => o.TotalSum <= maxSum).Include(o => o.Customer).Include(o => o.OrderDetails).ToList();
+			_context.Orders.Where(o => o.TotalSum <= maxSum).Include(o => o.Receiver).Include(o => o.OrderDetails).ToList();
 
 		public ICollection<Order> GetOrdersByMinimalSum(int minimalSum) =>
-			_context.Orders.Where(o => o.TotalSum >= minimalSum).Include(o => o.Customer).Include(o => o.OrderDetails).ToList();
+			_context.Orders.Where(o => o.TotalSum >= minimalSum).Include(o => o.Receiver).Include(o => o.OrderDetails).ToList();
 
+		public ICollection<Order> GetOrdersByPhoneNumber(string phoneNumber) =>
+			_context.Orders.Where(o => o.Receiver.PhoneNumber == phoneNumber).Include(o => o.Receiver).Include(o => o.OrderDetails).ToList();
+
+
+		public ICollection<Order> GetOrdersByReceiverId(int receiverId) =>
+			_context.Orders.Where(o => o.ReceiverId == receiverId).Include(o => o.Receiver).Include(o => o.OrderDetails).ToList();
+		
 		public bool OrderExistsById(int orderId) =>
 			_context.Orders.Any(o => o.Id == orderId);
 
@@ -63,5 +70,6 @@ namespace Road23.WebAPI.Repository
 
 		public async Task<bool> SaveAsync() =>
 			await _context.SaveChangesAsync() > 0;
+
 	}
 }
