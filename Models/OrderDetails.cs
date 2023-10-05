@@ -3,8 +3,8 @@
 	public class OrderDetails
 	{
 		public int Id { get; set; }
-		public int CandleQuantity { get; set; }
 		
+		public int CandleQuantity { get; set; }
 		// candle related stuff
 		public int CandleId { get; set; }
 		public CandleItem Candle { get; set; } = null!;

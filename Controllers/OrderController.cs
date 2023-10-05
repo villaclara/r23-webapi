@@ -32,7 +32,7 @@ namespace Road23.WebAPI.Controllers
 				TotalSum = orderToAdd.TotalSum,
 				CustomerId = orderToAdd.CustomerId,
 				Comments = orderToAdd.Comments,
-				Receiver = orderToAdd.Receiver,
+				//Receiver = orderToAdd.Receiver,
 				OrderDetails = new List<OrderDetails>()
 			};
 			foreach (var item in orderToAdd.OrderDetails)
@@ -113,7 +113,7 @@ namespace Road23.WebAPI.Controllers
 				TotalSum = orderToUpdate.TotalSum,
 				CustomerId = orderToUpdate.CustomerId,
 				Comments = orderToUpdate.Comments,
-				Receiver = orderToUpdate.Receiver,
+				//Receiver = orderToUpdate.Receiver,
 				OrderDetails = new List<OrderDetails>()
 			};
 			foreach (var item in orderToUpdate.OrderDetails)

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Road23.WebAPI.Database;
 
@@ -11,9 +12,11 @@ using Road23.WebAPI.Database;
 namespace Road23.WebAPI.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20231005151449_AddedReceiverAndDeletedCustomerDetails")]
+    partial class AddedReceiverAndDeletedCustomerDetails
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -127,6 +130,28 @@ namespace Road23.WebAPI.Migrations
                     b.ToTable("Customers");
                 });
 
+            modelBuilder.Entity("Road23.WebAPI.Models.CustomerDetails", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("CustomerDetails");
+                });
+
             modelBuilder.Entity("Road23.WebAPI.Models.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -225,7 +250,7 @@ namespace Road23.WebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Receivers");
+                    b.ToTable("Receiver");
                 });
 
             modelBuilder.Entity("Road23.WebAPI.Models.CandleIngredient", b =>
@@ -248,6 +273,17 @@ namespace Road23.WebAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Road23.WebAPI.Models.CustomerDetails", b =>
+                {
+                    b.HasOne("Road23.WebAPI.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("Road23.WebAPI.Models.Order", b =>
