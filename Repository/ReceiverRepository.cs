@@ -33,11 +33,11 @@ namespace Road23.WebAPI.Repository
 		public bool ExistsByPhoneNumber(string phoneNumber) =>
 			_context.Receivers.Where(r => r.PhoneNumber == phoneNumber).Any();
 
-		public Receiver GetReceiverByOrderId(int orderId) =>
-			throw new NotImplementedException();
+		public Receiver? GetReceiverByOrderId(int orderId) =>
+			_context.Receivers.Where(r => r.OrderId == orderId).FirstOrDefault();
 
-		public Receiver GetReceiverByPhone(string phoneNumber) =>
-			_context.Receivers.Where(r => r.PhoneNumber.Trim() == phoneNumber.Trim()).FirstOrDefault()!;
+		public ICollection<Receiver> GetReceiversByPhone(string phoneNumber) =>
+			_context.Receivers.Where(r => r.PhoneNumber.Trim() == phoneNumber.Trim()).ToList();
 
 		public ICollection<Receiver> GetReceivers() =>
 			_context.Receivers.ToList();

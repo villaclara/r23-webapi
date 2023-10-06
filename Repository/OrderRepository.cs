@@ -44,7 +44,8 @@ namespace Road23.WebAPI.Repository
 			_context.Orders.OrderBy(o => o.OrderDate).Include(o => o.Receiver).Include(o => o.OrderDetails).ToList();
 
 		public ICollection<Order> GetOrdersByCustomerId(int customerId) =>
-			_context.Orders.Where(o => o.CustomerId == customerId).Include(o => o.Receiver).Include(o => o.OrderDetails).ToList();
+			_context.Orders.Where(o => o.CustomerId == customerId)
+			.Include(o => o.Receiver).Include(o => o.OrderDetails).ToList();
 
 		public ICollection<Order> GetOrdersByDate(DateOnly date) =>
 			_context.Orders.Where(o => o.OrderDate.Date == date.ToDateTime(new TimeOnly()).Date)
@@ -60,9 +61,6 @@ namespace Road23.WebAPI.Repository
 			_context.Orders.Where(o => o.Receiver.PhoneNumber == phoneNumber).Include(o => o.Receiver).Include(o => o.OrderDetails).ToList();
 
 
-		public ICollection<Order> GetOrdersByReceiverId(int receiverId) =>
-			throw new NotImplementedException();
-		
 
 		public bool OrderExistsById(int orderId) =>
 			_context.Orders.Any(o => o.Id == orderId);

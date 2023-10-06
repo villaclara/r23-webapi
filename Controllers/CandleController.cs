@@ -2,11 +2,11 @@
 using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Models;
 using Road23.WebAPI.ViewModels;
-using Road23.WebAPI.Utility;
+using Road23.WebAPI.Utility.ExtensionMethods;
 
 namespace Road23.WebAPI.Controllers
 {
-	[ApiController]
+    [ApiController]
 	[Route("api/[controller]")]
 	public class CandleController : ControllerBase
 	{
@@ -145,7 +145,7 @@ namespace Road23.WebAPI.Controllers
 		[ProducesResponseType(200)]
 		[ProducesResponseType(400)]
 		[ProducesResponseType(422)]
-		public async Task<IActionResult> AddCandleAsync([FromQuery] int categoryId, [FromBody] CandleItemFullVM candleToAdd)
+		public async Task<IActionResult> AddCandleAsync([FromBody] CandleItemFullVM candleToAdd)
 		{
 			// candle to Add is not set
 			if (candleToAdd is null)
@@ -162,12 +162,13 @@ namespace Road23.WebAPI.Controllers
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			// category does not exists by given ID in query
-			var ctgr = _categoryRepository.GetCategoryById(categoryId);
+			// category does not exists by received name
+			// we add new category then
+			var ctgr = _categoryRepository.GetCategoryByName(candleToAdd.Category);
 			if (ctgr is null)
 			{
-				ModelState.AddModelError("", "Categore does not exist");
-				return StatusCode(400, ModelState);
+				ctgr = new CandleCategory { Name = candleToAdd.Category };
+				await _categoryRepository.CreateCategoryAsync(ctgr);
 			}
 
 			var newCandle = candleToAdd.ConvertFromFullVM_ToDefaultModel(ctgr);

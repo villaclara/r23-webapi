@@ -3,13 +3,13 @@ using Road23.WebAPI.Database;
 using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Models;
 using Road23.WebAPI.Repository;
-using Road23.WebAPI.Utility;
+using Road23.WebAPI.Utility.ExtensionMethods;
 using Road23.WebAPI.ViewModels;
 using System.Reflection.Metadata.Ecma335;
 
 namespace Road23.WebAPI.Controllers
 {
-	[ApiController]
+    [ApiController]
 	[Route("api/[controller]")]
 	public class CandleCategoryController : ControllerBase
 	{

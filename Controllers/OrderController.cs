@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Models;
-using Road23.WebAPI.Utility;
+using Road23.WebAPI.Utility.ExtensionMethods;
 using Road23.WebAPI.ViewModels;
 using System.Collections.Generic;
 
 namespace Road23.WebAPI.Controllers
 {
-	[ApiController]
+    [ApiController]
 	[Route("api/[controller]")]
 	public class OrderController : ControllerBase
 	{
@@ -26,6 +26,14 @@ namespace Road23.WebAPI.Controllers
 		[HttpPost]
 		public async Task<IActionResult> AddOrderAsync([FromBody] OrderFullVM orderToAdd)
 		{
+			// orderVM validation from Utility folder as Extension
+			if(!orderToAdd.Validate())
+			{
+				return BadRequest("Validation Error");
+			}
+
+
+			var receiversCount = _receiverRepository.GetReceiversByPhone(orderToAdd.Receiver.PhoneNumber.Trim()).Count;
 			// mapping from OrderFullVM Viewmodel to Order model
 			var ordr = new Order
 			{
@@ -35,7 +43,8 @@ namespace Road23.WebAPI.Controllers
 				CustomerId = orderToAdd.CustomerId,
 				Comments = orderToAdd.Comments,
 				Receiver = orderToAdd.Receiver.ConvertFromReceiverVM_ToReceiverModel(),
-				OrderDetails = new List<OrderDetails>()
+				OrderDetails = new List<OrderDetails>(),
+				ReceiverRepeat = receiversCount + 1,
 			};
 			foreach (var item in orderToAdd.OrderDetails)
 			{
@@ -54,7 +63,7 @@ namespace Road23.WebAPI.Controllers
 				return StatusCode(500, ModelState);
 			}
 
-			return Ok(orderToAdd);
+			return Ok("Order added");
 
 		}
 
@@ -67,15 +76,18 @@ namespace Road23.WebAPI.Controllers
 			if (order is null)
 				return NotFound($"Order {orderId} - Not found.");
 
-			if (_detailsRepository.GetOrderDetailsByOrderId(orderId) is null)
-			{
-				var isSuccess = await _orderRepository.DeleteOrderAsync(order);
-				if (isSuccess)
-				{
-					ModelState.AddModelError("", "Internal error when deleting order.");
-					return StatusCode(500, ModelState);
-				}
 
+			var isSuccess = await _orderRepository.DeleteOrderAsync(order);
+			if (!isSuccess)
+			{
+				ModelState.AddModelError("", "Internal error when deleting order.");
+				return StatusCode(500, ModelState);
+			}
+
+			var receiver = _receiverRepository.GetReceiverByOrderId(orderId);
+			if (receiver is not null)
+			{
+				await _receiverRepository.DeleteReceiverAsync(receiver);
 			}
 			// It seems that previous method also deletes the all OrderDetails linked with order
 			// But just to be sure I will leave it here
@@ -111,11 +123,12 @@ namespace Road23.WebAPI.Controllers
 			var r = _receiverRepository.GetReceiverByOrderId(orderId);
 
 			// deleting all OrderDetails related to order by id
-			// because otherwise It adds new details instead of changing current one
+			// because otherwise It adds new details instead of changing current 
 			await _detailsRepository.RemoveAllOrderDetailsByOrderId(orderId);
 
 			// deleting receiver to order id
-			await _receiverRepository.DeleteReceiverAsync(_receiverRepository.GetReceiverByOrderId(orderId));
+			// because otherwise IT adds new received instead of changing current 
+			await _receiverRepository.DeleteReceiverAsync(_receiverRepository.GetReceiverByOrderId(orderId)!);
 
 			// new order from OrderVM
 			var ordr = new Order
@@ -251,7 +264,7 @@ namespace Road23.WebAPI.Controllers
 		/// </summary>
 		/// <param name="orders">Orders returned by some criteria</param>
 		/// <returns>ICollection of <see cref="OrderFullVM"/> objects</returns>
-		private ICollection<OrderFullVM> MakeOrderVMsCollection(ICollection<Order> orders)
+		private static ICollection<OrderFullVM> MakeOrderVMsCollection(ICollection<Order> orders)
 		{
 			IList<OrderFullVM> orderVMs = new List<OrderFullVM>();
 			foreach (var o in orders)
