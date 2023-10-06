@@ -39,7 +39,8 @@ namespace Road23.WebAPI.Utility.ExtensionMethods
                 HeightCM = cItem.HeightCM,
                 BurningTimeMins = cItem.BurningTimeMins,
                 WaxNeededGram = cItem.Ingredient.WaxNeededGram,
-                WickDiameterCM = cItem.Ingredient.WickForDiameterCD
+                WickDiameterCM = cItem.Ingredient.WickForDiameterCD,
+                PhotoLink = cItem.PhotoLink,
             };
 
         public static CandleItemFullVM ConvertFromDefaultModel_ToFullVM(this CandleItem cItem, CandleCategory? category = default, CandleIngredient? ingredient = default) =>
@@ -54,7 +55,8 @@ namespace Road23.WebAPI.Utility.ExtensionMethods
                 HeightCM = cItem.HeightCM,
                 BurningTimeMins = cItem.BurningTimeMins,
                 WaxNeededGram = ingredient?.WaxNeededGram ?? 0,
-                WickDiameterCM = ingredient?.WickForDiameterCD ?? 0
+                WickDiameterCM = ingredient?.WickForDiameterCD ?? 0,
+                PhotoLink = cItem.PhotoLink,
             };
 
         public static CandleItem ConvertFromFullVM_ToDefaultModel(this CandleItemFullVM cFullItem, CandleCategory ctgr, int? ingredientId = default) =>
