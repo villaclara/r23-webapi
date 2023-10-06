@@ -15,7 +15,13 @@ namespace Road23.WebAPI.Utility
 				OrderDate = order.OrderDate,
 				Promocode = order.Promocode,
 				Comments = order.Comments,
-				//Receiver = order.Receiver,
+				Receiver = new ReceiverVM
+				{
+					FullName = order.Receiver.FirstName + " " + order.Receiver.LastName + " " + order.Receiver.FathersName ?? "",
+					PhoneNumber = order.Receiver.PhoneNumber,
+					City = order.Receiver.City,
+					DeliveryAdress = order.Receiver.DeliveryAdress,
+				},
 				TotalSum = order.TotalSum,
 				OrderDetails = new List<OrderDetailsFullVM>()
 			};

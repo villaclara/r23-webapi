@@ -13,10 +13,12 @@ namespace Road23.WebAPI.Controllers
 	{
 		private readonly IOrderRepository _orderRepository;
 		private readonly IOrderDetailsRepository _detailsRepository;
-		public OrderController(IOrderRepository orderRepository, IOrderDetailsRepository detailsRepository)
+		private readonly IReceiverRepository _receiverRepository;
+		public OrderController(IOrderRepository orderRepository, IOrderDetailsRepository detailsRepository, IReceiverRepository receiverRepository)
 		{
 			_orderRepository = orderRepository;
 			_detailsRepository = detailsRepository;
+			_receiverRepository = receiverRepository;
 		}
 
 
@@ -32,7 +34,7 @@ namespace Road23.WebAPI.Controllers
 				TotalSum = orderToAdd.TotalSum,
 				CustomerId = orderToAdd.CustomerId,
 				Comments = orderToAdd.Comments,
-				Receiver = 
+				Receiver = orderToAdd.Receiver.ConvertFromReceiverVM_ToReceiverModel(),
 				OrderDetails = new List<OrderDetails>()
 			};
 			foreach (var item in orderToAdd.OrderDetails)
@@ -52,7 +54,7 @@ namespace Road23.WebAPI.Controllers
 				return StatusCode(500, ModelState);
 			}
 
-			return Ok(ordr);
+			return Ok(orderToAdd);
 
 		}
 
@@ -65,13 +67,16 @@ namespace Road23.WebAPI.Controllers
 			if (order is null)
 				return NotFound($"Order {orderId} - Not found.");
 
-			var isSuccess = await _orderRepository.DeleteOrderAsync(order);
-			if(isSuccess)
+			if (_detailsRepository.GetOrderDetailsByOrderId(orderId) is null)
 			{
-				ModelState.AddModelError("", "Internal error when deleting order.");
-				return StatusCode(500, ModelState);
-			}
+				var isSuccess = await _orderRepository.DeleteOrderAsync(order);
+				if (isSuccess)
+				{
+					ModelState.AddModelError("", "Internal error when deleting order.");
+					return StatusCode(500, ModelState);
+				}
 
+			}
 			// It seems that previous method also deletes the all OrderDetails linked with order
 			// But just to be sure I will leave it here
 			var details = _detailsRepository.GetOrderDetailsByOrderId(orderId);
@@ -79,6 +84,9 @@ namespace Road23.WebAPI.Controllers
 			{
 				await _detailsRepository.RemoveOrderDetailsFromOrderAsync(orderId, d);
 			}
+
+			//var receiver = order.Receiver;
+			//await _receiverRepository.DeleteReceiverAsync(receiver);
 
 			return Ok($"Order deleted - {orderId}");
 		}
@@ -100,9 +108,14 @@ namespace Road23.WebAPI.Controllers
 				return StatusCode(400, ModelState);
 
 
+			var r = _receiverRepository.GetReceiverByOrderId(orderId);
+
 			// deleting all OrderDetails related to order by id
 			// because otherwise It adds new details instead of changing current one
 			await _detailsRepository.RemoveAllOrderDetailsByOrderId(orderId);
+
+			// deleting receiver to order id
+			await _receiverRepository.DeleteReceiverAsync(_receiverRepository.GetReceiverByOrderId(orderId));
 
 			// new order from OrderVM
 			var ordr = new Order
@@ -113,7 +126,7 @@ namespace Road23.WebAPI.Controllers
 				TotalSum = orderToUpdate.TotalSum,
 				CustomerId = orderToUpdate.CustomerId,
 				Comments = orderToUpdate.Comments,
-				//Receiver = orderToUpdate.Receiver,
+				Receiver = orderToUpdate.Receiver.ConvertFromReceiverVM_ToReceiverModel(),
 				OrderDetails = new List<OrderDetails>()
 			};
 			foreach (var item in orderToUpdate.OrderDetails)

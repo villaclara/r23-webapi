@@ -12,6 +12,8 @@ namespace Road23.WebAPI.Models
 		public string City { get; set; } = null!;
 		public string DeliveryAdress { get; set; } = null!;
 
-		public ICollection<Order> Orders { get; set; } = null!;
+		// order related stuff
+		public int OrderId { get; set; }
+		public Order Order { get; set; } = null!;
 	}
 }

@@ -15,7 +15,6 @@ namespace Road23.WebAPI.Models
 		public int ReceiverRepeat { get; set; }
 		
 		// Receiver stuff
-		public int ReceiverId { get; set; }
 		public Receiver Receiver { get; set; } = null!;
 
 		// Customer stuff

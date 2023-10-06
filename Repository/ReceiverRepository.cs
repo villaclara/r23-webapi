@@ -12,37 +12,37 @@ namespace Road23.WebAPI.Repository
 			_context = context;
 		}	
 
-		public Task<bool> AddReceiverAsync(Receiver receiver)
+		public async Task<bool> AddReceiverAsync(Receiver receiver)
 		{
-			throw new NotImplementedException();
+			_context.Receivers.Add(receiver);
+			return await SaveAsync();
 		}
 
-		public Task<bool> DeleteReceiverAsync(Receiver receiver)
+		public async Task<bool> DeleteReceiverAsync(Receiver receiver)
 		{
-			throw new NotImplementedException();
+			_context.Receivers.Remove(receiver);
+			return await SaveAsync();
 		}
 
-		public Task<bool> EditReceiverAsync(Receiver receiver)
+		public async Task<bool> EditReceiverAsync(Receiver receiver)
 		{
-			throw new NotImplementedException();
+			_context.Receivers.Update(receiver);
+			return await SaveAsync();
 		}
 
 		public bool ExistsByPhoneNumber(string phoneNumber) =>
 			_context.Receivers.Where(r => r.PhoneNumber == phoneNumber).Any();
 
-		public ICollection<Receiver> GetReceiverByPhone(string phoneNumber)
-		{
+		public Receiver GetReceiverByOrderId(int orderId) =>
 			throw new NotImplementedException();
-		}
 
-		public ICollection<Receiver> GetReceivers()
-		{
-			throw new NotImplementedException();
-		}
+		public Receiver GetReceiverByPhone(string phoneNumber) =>
+			_context.Receivers.Where(r => r.PhoneNumber.Trim() == phoneNumber.Trim()).FirstOrDefault()!;
 
-		public Task<bool> SaveAsync()
-		{
-			throw new NotImplementedException();
-		}
+		public ICollection<Receiver> GetReceivers() =>
+			_context.Receivers.ToList();
+
+		public async Task<bool> SaveAsync() =>
+			await _context.SaveChangesAsync() > 0;
 	}
 }

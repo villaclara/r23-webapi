@@ -6,7 +6,8 @@ namespace Road23.WebAPI.Interfaces
 	{
 		bool ExistsByPhoneNumber(string phoneNumber);
 		ICollection<Receiver> GetReceivers();
-		ICollection<Receiver> GetReceiverByPhone(string phoneNumber);
+		Receiver GetReceiverByPhone(string phoneNumber);
+		Receiver GetReceiverByOrderId(int orderId);
 		Task<bool> AddReceiverAsync(Receiver receiver);
 		Task<bool> EditReceiverAsync(Receiver receiver);
 		Task<bool> DeleteReceiverAsync(Receiver receiver);

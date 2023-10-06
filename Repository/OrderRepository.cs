@@ -61,8 +61,9 @@ namespace Road23.WebAPI.Repository
 
 
 		public ICollection<Order> GetOrdersByReceiverId(int receiverId) =>
-			_context.Orders.Where(o => o.ReceiverId == receiverId).Include(o => o.Receiver).Include(o => o.OrderDetails).ToList();
+			throw new NotImplementedException();
 		
+
 		public bool OrderExistsById(int orderId) =>
 			_context.Orders.Any(o => o.Id == orderId);
 
