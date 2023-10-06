@@ -136,7 +136,7 @@ namespace Road23.WebAPI.Controllers
 		
 
 
-		// CandleItemFullVM has string Category field, int Id 
+		// CandleItemFullVM has int Id 
 		// these fields is not needed when adding candle
 		// so for now we just type wthatever in here, but possibly it needs to be re-written
 

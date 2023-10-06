@@ -214,6 +214,19 @@ namespace Road23.WebAPI.Controllers
 
 		}
 
+		[HttpGet("phone={phoneNumber}")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
+		public IActionResult GetOrdersByPhoneNumber(string phoneNumber)
+		{
+			var orders = _orderRepository.GetOrdersByPhoneNumber(phoneNumber);
+			if (!orders.Any())
+				return StatusCode(404, $"Ordes by phone number - {phoneNumber} - not found.");
+
+			var orderVMs = MakeOrderVMsCollection(orders);
+
+			return Ok(orderVMs);
+		}
 
 		[HttpGet("date={date}")]
 		[ProducesResponseType(200)]
