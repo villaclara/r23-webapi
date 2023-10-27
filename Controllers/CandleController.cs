@@ -227,7 +227,10 @@ namespace Road23.WebAPI.Controllers
 
 			var ctgr = _categoryRepository.GetCategoryByName(candleToUpdate.Category);
 			if (ctgr is null)
-				return NotFound();
+			{
+				ctgr = new CandleCategory { Name = candleToUpdate.Category };
+				await _categoryRepository.CreateCategoryAsync(ctgr);
+			}
 
 			var ingrd = _ingredientRepository.GetIngredientsByCandleId(candleId);
 			if (ingrd is null)
@@ -237,7 +240,7 @@ namespace Road23.WebAPI.Controllers
 			var cnd = _candleRepository.GetCandleById(candleId)!;
 			cnd.Name = candleToUpdate.Name;
 			cnd.Description = candleToUpdate.Description;
-			cnd.Category.Name = candleToUpdate.Category;
+			cnd.Category = ctgr;
 			cnd.RealCost = candleToUpdate.RealCost;
 			cnd.SellPrice = candleToUpdate.SellPrice;
 			cnd.HeightCM = candleToUpdate.HeightCM;
