@@ -2,7 +2,7 @@
 {
 	// basic ViewModel of CandleItem + Ingredients + Category Name
 	// used to display for basic users (NOT ADMIN)
-	public class CandleItemBasicVM
+	public record class CandleItemBasicVM
 	{
 		public string Name { get; set; } = null!;
 		public string? Desciption { get; set; }

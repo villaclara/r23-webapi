@@ -1,6 +1,6 @@
 ﻿namespace Road23.WebAPI.ViewModels
 {
-	public class NoteVM
+	public record class NoteVM
 	{
 		public int Id { get; set; }
 		public bool IsDone { get; set; }

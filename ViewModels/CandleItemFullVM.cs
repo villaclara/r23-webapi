@@ -4,7 +4,7 @@ using Road23.WebAPI.Models;
 namespace Road23.WebAPI.ViewModels
 {
 	// full info about CandleItem + Ingredient + Category
-	public class CandleItemFullVM
+	public record class CandleItemFullVM
 	{
 		public int Id { get; set; }
 		public string Name { get; set; } = null!;
