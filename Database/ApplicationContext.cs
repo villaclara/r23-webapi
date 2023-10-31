@@ -18,5 +18,6 @@ namespace Road23.WebAPI.Database
 		public DbSet<OrderDetails> OrderDetails { get; set; } = null!;
 		public DbSet<Customer> Customers { get; set; } = null!;
 		public DbSet<Receiver> Receivers { get; set; } = null!;
+		public DbSet<Expense> Expenses { get; set; } = null!;
 	}
 }
