@@ -84,11 +84,11 @@ namespace Road23.WebAPI.Controllers
 
 		}
 
-		[HttpPut("eid={noteId:int}")]
+		[HttpPut("nid={noteId:int}")]
 		[ProducesResponseType(200)]
 		[ProducesResponseType(400)]
 		[ProducesResponseType(500)]
-		public async Task<IActionResult> UpdateExpense([FromQuery] int noteId, [FromBody] NoteVM noteToUpdate)
+		public async Task<IActionResult> UpdateExpense(int noteId, [FromBody] NoteVM noteToUpdate)
 		{
 			if (noteToUpdate is null || noteToUpdate.Id != noteId)
 				return StatusCode(400, ModelState);
@@ -116,11 +116,11 @@ namespace Road23.WebAPI.Controllers
 		}
 
 
-		[HttpDelete("eid={noteId:int}")]
+		[HttpDelete("nid={noteId:int}")]
 		[ProducesResponseType(404)]
 		[ProducesResponseType(500)]
 		[ProducesResponseType(200)]
-		public async Task<IActionResult> DeleteExpense(int noteId)
+		public async Task<IActionResult> DeleteNote(int noteId)
 		{
 			var note = _noteRepository.GetAllNotes().Where(e => e.Id == noteId).FirstOrDefault();
 			if (note is default(Note))
