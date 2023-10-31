@@ -1,11 +1,10 @@
-﻿namespace Road23.WebAPI.Models
+﻿namespace Road23.WebAPI.ViewModels
 {
-	public class Note
+	public class NoteVM
 	{
 		public int Id { get; set; }
 		public bool IsDone { get; set; }
 		public string NoteText { get; set; } = null!;
-		public DateTime NoteDate { get; set; }
-
+		public DateOnly NoteDate { get; set; }
 	}
 }

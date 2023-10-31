@@ -19,7 +19,7 @@ namespace Road23.WebAPI.Utility.ExtensionMethods
 			{
 				Id = expenseVM.Id,
 				Cost = expenseVM.Cost,
-				Date = expenseVM.Date.ToDateTime(TimeOnly.Parse("10:00PM")),
+				Date = expenseVM.Date.ToDateTime(TimeOnly.Parse(ConstantsClass.DEFAULT_TIMEONLY_VALUE)),
 				Description = expenseVM.Description,
 			};
 

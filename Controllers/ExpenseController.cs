@@ -4,6 +4,7 @@ using Road23.WebAPI.Utility.ExtensionMethods;
 using Road23.WebAPI.ViewModels;
 using Road23.WebAPI.Models;
 using Road23.WebAPI.Repository;
+using Road23.WebAPI.Utility;
 
 namespace Road23.WebAPI.Controllers
 {
@@ -80,7 +81,7 @@ namespace Road23.WebAPI.Controllers
 			{
 				Id = expenseId,
 				Description = expenseToUpdate.Description,
-				Date = expenseToUpdate.Date.ToDateTime(TimeOnly.Parse("10:00PM")),
+				Date = expenseToUpdate.Date.ToDateTime(TimeOnly.Parse(ConstantsClass.DEFAULT_TIMEONLY_VALUE)),
 				Cost = expenseToUpdate.Cost,
 			};
 
