@@ -34,26 +34,10 @@ namespace Road23.WebAPI.Controllers
 
 
 			var receiversCount = _receiverRepository.GetReceiversByPhone(orderToAdd.Receiver.PhoneNumber.Trim()).Count;
+
 			// mapping from OrderFullVM Viewmodel to Order model
-			var ordr = new Order
-			{
-				OrderDate = orderToAdd.OrderDate,
-				Promocode = orderToAdd.Promocode,
-				TotalSum = orderToAdd.TotalSum,
-				CustomerId = orderToAdd.CustomerId,
-				Comments = orderToAdd.Comments,
-				Receiver = orderToAdd.Receiver.ConvertFromReceiverVM_ToReceiverModel(),
-				OrderDetails = new List<OrderDetails>(),
-				ReceiverRepeat = receiversCount + 1,
-			};
-			foreach (var item in orderToAdd.OrderDetails)
-			{
-				ordr.OrderDetails.Add(new OrderDetails
-				{
-					CandleId = item.CandleId,
-					CandleQuantity = item.CandleQuantity,
-				});
-			}
+			var ordr = orderToAdd.CovertFromVM_ToDefaultOrder();
+			ordr.ReceiverRepeat = receiversCount + 1;
 			
 			// adding order - it will add both Order and OrderDetails to db
 			var isSuccess = await _orderRepository.CreateOrderAsync(ordr);
@@ -139,6 +123,14 @@ namespace Road23.WebAPI.Controllers
 				TotalSum = orderToUpdate.TotalSum,
 				CustomerId = orderToUpdate.CustomerId,
 				Comments = orderToUpdate.Comments,
+				IsPaid = orderToUpdate.IsPaid,
+				PaymentType = orderToUpdate.PaymentType switch
+				{
+					0 => PaymentType.Cash,
+					1 => PaymentType.Card,
+					2 => PaymentType.ZD,
+					_ => PaymentType.Cash
+				},
 				Receiver = orderToUpdate.Receiver.ConvertFromReceiverVM_ToReceiverModel(),
 				OrderDetails = new List<OrderDetails>()
 			};

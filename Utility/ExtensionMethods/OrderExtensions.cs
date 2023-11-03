@@ -28,7 +28,7 @@ namespace Road23.WebAPI.Utility.ExtensionMethods
         public static OrderFullVM ConvertFromDefaultOrder_ToFullVM(this Order order)
         {
             string fathersname = order.Receiver.FathersName?.Length > 0 ? " " + order.Receiver.FathersName : "";
-            
+
             var orderFull = new OrderFullVM()
             {
                 Id = order.Id,
@@ -36,6 +36,14 @@ namespace Road23.WebAPI.Utility.ExtensionMethods
                 OrderDate = order.OrderDate,
                 Promocode = order.Promocode,
                 Comments = order.Comments,
+                IsPaid = order.IsPaid,
+                PaymentType = order.PaymentType switch
+                {
+                    PaymentType.Cash => 0,
+                    PaymentType.Card => 1,
+                    PaymentType.ZD => 2,
+                    _ => 0
+                },
                 Receiver = new ReceiverVM
                 {
                     FullName = order.Receiver.FirstName + " " + order.Receiver.LastName + fathersname,
@@ -60,5 +68,36 @@ namespace Road23.WebAPI.Utility.ExtensionMethods
             return orderFull;
         }
 
+        public static Order CovertFromVM_ToDefaultOrder(this OrderFullVM orderVM)
+        {
+			var ordr = new Order
+			{
+				OrderDate = orderVM.OrderDate,
+				Promocode = orderVM.Promocode,
+				TotalSum = orderVM.TotalSum,
+				CustomerId = orderVM.CustomerId,
+				Comments = orderVM.Comments,
+				IsPaid = orderVM.IsPaid,
+				PaymentType = orderVM.PaymentType switch
+				{
+					0 => PaymentType.Cash,
+					1 => PaymentType.Card,
+					2 => PaymentType.ZD,
+					_ => PaymentType.Cash
+				},
+				Receiver = orderVM.Receiver.ConvertFromReceiverVM_ToReceiverModel(),
+				OrderDetails = new List<OrderDetails>(),
+			};
+			foreach (var item in orderVM.OrderDetails)
+			{
+				ordr.OrderDetails.Add(new OrderDetails
+				{
+					CandleId = item.CandleId,
+					CandleQuantity = item.CandleQuantity,
+				});
+			}
+
+            return ordr;
+		}
     }
 }

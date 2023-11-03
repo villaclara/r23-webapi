@@ -9,6 +9,8 @@ namespace Road23.WebAPI.ViewModels
 		public decimal TotalSum { get; set; }
 		public string? Promocode { get; set; }
 		public string? Comments { get; set; }
+		public bool IsPaid { get; set; }
+		public int PaymentType { get; set; }
 		public int CustomerId { get; set; }
 		public ICollection<OrderDetailsFullVM> OrderDetails { get; set; } = null!;
 		
