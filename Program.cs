@@ -51,6 +51,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+
 // using CORS Policy set above with Name
 
 // Configure the HTTP request pipeline.

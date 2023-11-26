@@ -3,6 +3,8 @@ using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Models;
 using Road23.WebAPI.ViewModels;
 using Road23.WebAPI.Utility.ExtensionMethods;
+using Microsoft.AspNetCore.WebUtilities;
+using System.IO;
 
 namespace Road23.WebAPI.Controllers
 {
@@ -184,7 +186,37 @@ namespace Road23.WebAPI.Controllers
 			return Ok(candleToAdd);
 		}
 
+		[HttpPost("upload")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
+		[ProducesResponseType(500)]
+		public async Task<IActionResult> AddImageToCandleId([FromQuery] int candleId, [FromForm] IFormFile file)
+		{
+			var candle = _candleRepository.GetCandleById(candleId);
+			if (candle is null)
+			{
+				return StatusCode(404);
+			}
 
+			if(file != null)
+			{
+				// unique filename based on current time
+				string filename = DateTime.Now.ToString("HHmmssddMMyyyy") + $"{file.FileName}";
+				var pathToPhoto = Path.Combine(Directory.GetCurrentDirectory(), "images", filename);
+
+				using FileStream fs = new(pathToPhoto, FileMode.Create);
+				await file.CopyToAsync(fs);
+			
+				
+				candle.PhotoLink = pathToPhoto;
+				await _candleRepository.UpdateCandleAsync(candle);
+
+				return Ok();
+			}
+
+
+			return StatusCode(500);
+		}
 
 		[HttpDelete("cid={candleId}")]
 		[ProducesResponseType(400)]
