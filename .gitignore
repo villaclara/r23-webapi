@@ -4,6 +4,9 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 
+#ignore Images Folder
+.Images/
+
 # .config/ folder and dotnet-tools.json file
 .config/
 dotnet-tools.json
