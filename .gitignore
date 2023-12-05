@@ -5,7 +5,7 @@
 
 
 #ignore Images Folder
-.Images/Candles/
+Images/Candles/
 
 # .config/ folder and dotnet-tools.json file
 .config/
