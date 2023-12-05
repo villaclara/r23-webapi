@@ -4,6 +4,9 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 
+#ignore Images Folder
+Images/Candles/
+
 # .config/ folder and dotnet-tools.json file
 .config/
 dotnet-tools.json
@@ -366,3 +369,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Images/Candles/18351803122023download.jpg
+/Images/Candles/18391503122023candle_template.jpg

@@ -3,6 +3,10 @@ using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Models;
 using Road23.WebAPI.ViewModels;
 using Road23.WebAPI.Utility.ExtensionMethods;
+using Microsoft.AspNetCore.WebUtilities;
+using System.IO;
+using System.Reflection.Metadata;
+using Road23.WebAPI.Utility;
 
 namespace Road23.WebAPI.Controllers
 {
@@ -133,7 +137,31 @@ namespace Road23.WebAPI.Controllers
 
 			return Ok(basiccandles);
 		}
-		
+
+		// Get the image as base64 string for image by candle id
+		[HttpGet("imgForId={candleId:int}")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
+		public IActionResult GetImageByCandleId(int candleId)
+		{
+			var candle = _candleRepository.GetCandleById(candleId);
+			if(candle is null)
+			{
+				return NotFound();
+			}
+
+			if(candle.PhotoLink is null)
+			{
+				return Ok("");
+			}
+
+			var imgBytes = System.IO.File.ReadAllBytes(candle.PhotoLink);
+
+			string str = Convert.ToBase64String(imgBytes);
+			
+			return Ok(str);
+
+		}
 
 
 		// CandleItemFullVM has int Id 
@@ -184,6 +212,45 @@ namespace Road23.WebAPI.Controllers
 			return Ok(candleToAdd);
 		}
 
+
+		[HttpPost("upload")]
+		[ProducesResponseType(200)]
+		[ProducesResponseType(404)]
+		[ProducesResponseType(500)]
+		public async Task<IActionResult> AddImageToCandleId([FromQuery] int candleId, [FromForm] IFormFile file)
+		{
+			var candle = _candleRepository.GetCandleById(candleId);
+			if (candle is null)
+			{
+				return StatusCode(404);
+			}
+
+			if(file != null)
+			{
+
+				// create directory if not exists
+				if(!Directory.Exists(Path.Combine(Directory.GetCurrentDirectory(), ConstantsClass.CANDLE_IMAGES_DIRECTORYNAME)))
+				{
+					Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), ConstantsClass.CANDLE_IMAGES_DIRECTORYNAME));
+				}
+
+				// unique filename based on current time
+				string filename = DateTime.Now.ToString("HHmmssddMMyyyy") + $"{file.FileName}";
+				var pathToPhoto = Path.Combine(Directory.GetCurrentDirectory(), ConstantsClass.CANDLE_IMAGES_DIRECTORYNAME, filename);
+				
+				using FileStream fs = new(pathToPhoto, FileMode.Create);
+				await file.CopyToAsync(fs);
+			
+				
+				candle.PhotoLink = pathToPhoto;
+				await _candleRepository.UpdateCandleAsync(candle);
+
+				return Ok();
+			}
+
+
+			return StatusCode(500);
+		}
 
 
 		[HttpDelete("cid={candleId}")]
