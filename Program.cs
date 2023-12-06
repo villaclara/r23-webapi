@@ -30,7 +30,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
 	//options.UseSqlServer(builder.Configuration["FreeAspHostingConnection"]);
-	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+	//options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+	options.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnection"));
 });
 
 
