@@ -48,12 +48,24 @@ builder.Services.AddCors(options =>
 		.WithOrigins("https://localhost:7263")
 		.AllowAnyMethod()
 		.AllowAnyHeader());
+	
+	options.AddPolicy(name: "AllowAdmin",
+		builder =>
+		{
+			builder.WithOrigins("https://r23admin.azurewebsites.net").AllowAnyHeader().WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
+		});
+	options.AddPolicy(name: "AllowEveryoneGet",
+			builder =>
+			{
+				builder.AllowAnyOrigin().AllowAnyHeader().WithMethods("GET");
+			});
 });
 
 var app = builder.Build();
 
-
-// using CORS Policy set above with Name
+// allow swagger in Production Environment
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -62,13 +74,15 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
+
+
+// using CORS Policy set above with Name
+//app.UseCors("AllowEveryoneGet");
+app.UseCors("AllowAdmin");
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
-
-app.UseCors("AllowEveryone");
-
 
 app.MapControllers();
 
