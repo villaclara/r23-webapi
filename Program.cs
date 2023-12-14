@@ -46,9 +46,9 @@ builder.Services.AddCors(options =>
 	options.AddPolicy(name: "AllowLocalhost7263",
 		builder => builder
 		.WithOrigins("https://localhost:7263")
-		.AllowAnyMethod()
-		.AllowAnyHeader());
-	
+		.AllowAnyHeader()
+		.WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
 	options.AddPolicy(name: "AllowAdmin",
 		builder =>
 		{
@@ -79,6 +79,8 @@ if (app.Environment.IsDevelopment())
 // using CORS Policy set above with Name
 //app.UseCors("AllowEveryoneGet");
 app.UseCors("AllowAdmin");
+app.UseCors("AllowLocalhost7263");
+app.UseCors("AllowEveryoneGet");
 
 app.UseHttpsRedirection();
 
