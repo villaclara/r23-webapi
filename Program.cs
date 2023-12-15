@@ -52,7 +52,7 @@ builder.Services.AddCors(options =>
 	options.AddPolicy(name: "AllowAdmin",
 		builder =>
 		{
-			builder.WithOrigins("https://r23admin.azurewebsites.net").AllowAnyHeader().WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
+			builder.WithOrigins("https://r23admin.azurewebsites.net", "https://localhost:7263", "http://localhost:5172").AllowAnyHeader().WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
 		});
 	options.AddPolicy(name: "AllowEveryoneGet",
 			builder =>
@@ -74,15 +74,12 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection();
 
 
 // using CORS Policy set above with Name
 //app.UseCors("AllowEveryoneGet");
 app.UseCors("AllowAdmin");
-app.UseCors("AllowLocalhost7263");
-app.UseCors("AllowEveryoneGet");
-
-app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
