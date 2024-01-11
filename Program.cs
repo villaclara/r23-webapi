@@ -4,6 +4,7 @@ using Road23.WebAPI.Database;
 using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Repository;
 using System.Text.Json.Serialization;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,7 +32,8 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
 {
 	//options.UseSqlServer(builder.Configuration["FreeAspHostingConnection"]);
 	//options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-	options.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnection"));
+	//options.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnection_Win"));
+	options.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnection_Lin"));
 });
 
 
@@ -78,8 +80,8 @@ app.UseHttpsRedirection();
 
 
 // using CORS Policy set above with Name
-//app.UseCors("AllowEveryoneGet");
-app.UseCors("AllowAdmin");
+app.UseCors("AllowEveryoneGet");
+//app.UseCors("AllowAdmin");
 
 app.UseAuthorization();
 
