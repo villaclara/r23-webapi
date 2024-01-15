@@ -157,9 +157,7 @@ namespace Road23.WebAPI.Controllers
 
 			var imgBytes = System.IO.File.ReadAllBytes(candle.PhotoLink);
 
-			string str = Convert.ToBase64String(imgBytes);
-			
-			return Ok(str);
+			return File(imgBytes, "image/jpeg");
 
 		}
 

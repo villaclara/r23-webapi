@@ -32,8 +32,8 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
 {
 	//options.UseSqlServer(builder.Configuration["FreeAspHostingConnection"]);
 	//options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-	//options.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnection_Win"));
-	options.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnection_Lin"));
+	options.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnection_Win"));
+	//options.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnection_Lin"));
 });
 
 
@@ -80,8 +80,8 @@ app.UseHttpsRedirection();
 
 
 // using CORS Policy set above with Name
-app.UseCors("AllowEveryoneGet");
-//app.UseCors("AllowAdmin");
+//app.UseCors("AllowEveryoneGet");
+app.UseCors("AllowAdmin");
 
 app.UseAuthorization();
 
