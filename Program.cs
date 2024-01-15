@@ -4,6 +4,7 @@ using Road23.WebAPI.Database;
 using Road23.WebAPI.Interfaces;
 using Road23.WebAPI.Repository;
 using System.Text.Json.Serialization;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +31,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
 	//options.UseSqlServer(builder.Configuration["FreeAspHostingConnection"]);
-	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+	//options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+	options.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnection_Win"));
+	//options.UseSqlite(builder.Configuration.GetConnectionString("SQLiteConnection_Lin"));
 });
 
 
@@ -45,14 +48,26 @@ builder.Services.AddCors(options =>
 	options.AddPolicy(name: "AllowLocalhost7263",
 		builder => builder
 		.WithOrigins("https://localhost:7263")
-		.AllowAnyMethod()
-		.AllowAnyHeader());
+		.AllowAnyHeader()
+		.WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+	options.AddPolicy(name: "AllowAdmin",
+		builder =>
+		{
+			builder.WithOrigins("https://r23admin.azurewebsites.net", "https://localhost:7263", "http://localhost:5172").AllowAnyHeader().WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
+		});
+	options.AddPolicy(name: "AllowEveryoneGet",
+			builder =>
+			{
+				builder.AllowAnyOrigin().AllowAnyHeader().WithMethods("GET");
+			});
 });
 
 var app = builder.Build();
 
-
-// using CORS Policy set above with Name
+// allow swagger in Production Environment
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -63,11 +78,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+
+// using CORS Policy set above with Name
+//app.UseCors("AllowEveryoneGet");
+app.UseCors("AllowAdmin");
+
 app.UseAuthorization();
-
-
-app.UseCors("AllowEveryone");
-
 
 app.MapControllers();
 

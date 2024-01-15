@@ -8,11 +8,12 @@ namespace Road23.WebAPI.Models
 		public string Name { get; set; } = null!;
 		public string? Description { get; set; }
 		public string? PhotoLink { get; set; }
-		[Precision(8,2)]
+		[Precision(8,1)]
 		public decimal RealCost { get; set; }
-		[Precision(8, 2)]
+		[Precision(8, 1)]
 		public decimal SellPrice { get; set; }
-		public int HeightCM { get; set; }
+		[Precision(8,1)]
+		public float HeightCM { get; set; }
 		public int? BurningTimeMins { get; set; }
 		
 		public int CategoryId { get; set; }

@@ -31,9 +31,14 @@ namespace Road23.WebAPI.Repository
 		public CandleItem? GetCandleById(int candleId) =>
 			_context.Candles.Where(c => c.Id == candleId).Include(i => i.Ingredient).Include(c => c.Category).FirstOrDefault();
 
-		public CandleItem? GetCandleByName(string candleName) =>
-			_context.Candles.Where(c => c.Name.Trim().ToLower() == candleName.Trim().ToLower())
-				.Include(i => i.Ingredient).Include(c => c.Category).FirstOrDefault();
+
+		public CandleItem? GetCandleByName(string candleName) 
+		{
+			// SQLite search not working with cyrillic letters and Trim() or ToLower()
+			// so just first get all candles as list and then search in list using Trim and ToLower
+			var candles = _context.Candles.Include(i => i.Ingredient).Include(c => c.Category).ToList();
+			return candles.Where(c => c.Name.Trim().ToLower() == candleName.Trim().ToLower()).FirstOrDefault();
+		}
 
 		public IList<CandleItem> GetCandles() =>
 			_context.Candles.OrderBy(c => c.Name).Include(i => i.Ingredient).Include(c => c.Category).ToList();
