@@ -1,3 +1,8 @@
 # Road23.WebAPI
 
-Simple web Api for my wife's shop. Implements all the basic web api functions.
+Simple .NET Web Api for my wife's shop. 
+
+### Features:
+- Controller-Based .NET Web Api
+- Repository pattern
+- Entity Framework Core ORM + SQLite database
